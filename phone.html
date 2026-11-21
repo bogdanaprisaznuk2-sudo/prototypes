@@ -31,6 +31,9 @@
   if (p.get("bar") === "1") { document.getElementById("phone").classList.add("withbar"); if (p.get("barbg")) document.getElementById("phone").style.setProperty("--bar", "#" + p.get("barbg").replace(/[^0-9a-f]/gi, "")); }
   if (p.get("island") === "0") document.getElementById("island").style.display = "none";
   // only allow prototypes from this site
+  const safeSrc = new URL(src, location.href).origin === location.origin ? src : "spacehub-app/";
+  // on real phones open the prototype itself, full screen
+  if (p.get("full") === "1" && Math.min(screen.width, innerWidth) <= 500) location.replace(safeSrc);
   document.getElementById("app").src = new URL(src, location.href).origin === location.origin ? src : "spacehub-app/";
   const phone = document.getElementById("phone");
   function fit() {
