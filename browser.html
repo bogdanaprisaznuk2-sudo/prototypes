@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prototype</title>
+<style>
+  html,body{margin:0;height:100%;background:#e6e8ec;overflow:hidden}
+  .stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+  .win{width:1440px;height:960px;border-radius:14px;overflow:hidden;background:#fff;flex:none;transform-origin:center center;
+    box-shadow:0 30px 80px rgba(17,18,20,.18),0 4px 14px rgba(17,18,20,.12)}
+  .chrome{height:52px;background:#f1f2f4;border-bottom:1px solid #e2e4e8;display:flex;align-items:center;gap:18px;padding:0 18px}
+  .dots{display:flex;gap:8px}.dots i{width:12px;height:12px;border-radius:50%;background:#ff5f57;display:block}
+  .dots i:nth-child(2){background:#febc2e}.dots i:nth-child(3){background:#28c840}
+  .url{flex:1;max-width:560px;margin:0 auto;height:30px;border-radius:8px;background:#fff;border:1px solid #e2e4e8;display:flex;align-items:center;justify-content:center;font:500 13px/1 Inter,-apple-system,sans-serif;color:#555}
+  iframe{width:1440px;height:908px;border:0;display:block}
+</style>
+</head>
+<body>
+<div class="stage"><div class="win" id="win">
+  <div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url" id="url"></div><div style="width:52px"></div></div>
+  <iframe id="app" title="Prototype"></iframe>
+</div></div>
+<script>
+  const p = new URLSearchParams(location.search);
+  const src = p.get("src") || "nuvia/";
+  const safe = new URL(src, location.href).origin === location.origin ? src : "nuvia/";
+  if (p.get("full") === "1" && Math.min(screen.width, innerWidth) <= 700) location.replace(safe);
+  document.getElementById("app").src = safe;
+  document.getElementById("url").textContent = (p.get("label") || "nuvia.clinic").replace(/[<>]/g, "");
+  const win = document.getElementById("win");
+  function fit() { const pad = p.get("pad") === "0" ? 0 : 24; const s = Math.min((innerWidth - pad) / 1440, (innerHeight - pad) / 960, 1); win.style.transform = "scale(" + s + ")"; }
+  addEventListener("resize", fit); fit();
+</script>
+</body>
+</html>

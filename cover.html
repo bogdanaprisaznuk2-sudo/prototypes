@@ -17,6 +17,12 @@
   .bar{position:absolute;top:0;left:0;right:0;height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 34px 0 40px;font:600 16px/1 -apple-system,Inter,sans-serif;color:#111;background:var(--bar,#fff);z-index:1}
   .withbar iframe{margin-top:50px;height:794px}
   .island{position:absolute;top:25px;left:50%;transform:translateX(-50%);width:120px;height:34px;border-radius:20px;background:#0b0b0c;z-index:2}
+.webwrap{position:relative;width:1700px;height:1000px;flex:none}
+  .win{position:absolute;left:0;top:0;width:1440px;height:960px;border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 50px 100px rgba(17,18,20,.22),0 8px 24px rgba(17,18,20,.14)}
+  .chrome{height:52px;background:#f1f2f4;border-bottom:1px solid #e2e4e8;display:flex;align-items:center;gap:8px;padding:0 18px}
+  .chrome i{width:12px;height:12px;border-radius:50%;background:#ff5f57;display:block}.chrome i:nth-child(2){background:#febc2e}.chrome i:nth-child(3){background:#28c840}
+  .win iframe{width:1440px;height:908px;border:0;display:block}
+  .webwrap .phone{position:absolute;right:0;bottom:-40px}
 </style>
 </head>
 <body>
@@ -38,7 +44,20 @@
     ph.querySelector("iframe").src = s;
     row.appendChild(ph);
   });
-  function fit() { const w = srcs.length * 418 + (srcs.length - 1) * 64; const s = Math.min(innerWidth * 0.86 / w, innerHeight * 0.86 / 872); row.style.transform = "scale(" + s + ")"; }
+  const web = p.get("web");
+  if (web && new URL(web, location.href).origin === location.origin) {
+    row.innerHTML = "";
+    const w = document.createElement("div"); w.className = "webwrap";
+    w.innerHTML = '<div class="win"><div class="chrome"><i></i><i></i><i></i></div><iframe tabindex="-1"></iframe></div>';
+    w.querySelector("iframe").src = web;
+    const ph = document.createElement("div"); ph.className = "phone" + (bar ? " withbar" : "");
+    ph.innerHTML = '<div class="screen">' + (bar ? '<div class="bar"><span>9:41</span>' + svg + '</div>' : '') + '<iframe tabindex="-1"></iframe></div><div class="island"></div>';
+    ph.querySelector("iframe").src = srcs[0];
+    w.appendChild(ph); row.appendChild(w);
+    const fitW = () => { const sc = Math.min(innerWidth * 0.88 / 1700, innerHeight * 0.84 / 1040); row.style.transform = "scale(" + sc + ")"; };
+    addEventListener("resize", fitW); fitW();
+  }
+  function fit() { if (web) return; const w = srcs.length * 418 + (srcs.length - 1) * 64; const s = Math.min(innerWidth * 0.86 / w, innerHeight * 0.86 / 872); row.style.transform = "scale(" + s + ")"; }
   addEventListener("resize", fit); fit();
 </script>
 </body>
