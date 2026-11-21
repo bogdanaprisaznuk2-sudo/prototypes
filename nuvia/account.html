@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="uk" class="no-js"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Кабінет пацієнта — Nuvia</title>
+<meta name="description" content="Кабінет пацієнта Nuvia: прийоми, рекомендації та результати аналізів.">
+<link rel="stylesheet" href="pages.css">
+</head>
+<body>
+<a class="skip" href="#main">До вмісту</a>
+<header class="hdr">
+  <div class="pill">
+    <a class="logo" href="index.html" aria-label="Nuvia — головна"><svg width="36" height="36" viewBox="0 0 40 40" fill="none" aria-hidden="true"><circle cx="20" cy="20" r="20" fill="#204654"/><path d="M12.5 28V12l15 16V12" stroke="#CAFFA6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Nuvia</span></a>
+    <nav class="nav" aria-label="Головне меню"><a class="nl" href="services.html">Послуги</a><a class="nl" href="doctors.html">Лікарі</a><a class="nl" href="prices.html">Ціни</a><a class="nl" href="about.html">Про клініку</a><a class="nl" href="blog.html">Блог</a><a class="nl" href="contacts.html">Контакти</a></nav>
+    <div class="hdr-r">
+      <a class="icon-btn" href="account.html" aria-label="Кабінет пацієнта" title="Кабінет пацієнта"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></a>
+      <a class="cta" href="booking.html">Записатися<span class="cta-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+      <button class="icon-btn burger" type="button" aria-label="Меню" aria-expanded="false" aria-controls="mmenu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg></button>
+    </div>
+    <nav class="mmenu" id="mmenu" aria-label="Мобільне меню"><a href="services.html">Послуги</a><a href="doctors.html">Лікарі</a><a href="prices.html">Ціни</a><a href="about.html">Про клініку</a><a href="blog.html">Блог</a><a href="contacts.html">Контакти</a><a href="account.html">Кабінет пацієнта</a><a class="btn btn-dark btn-block" href="booking.html">Записатися на прийом<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></nav>
+  </div>
+</header>
+<main id="main" class="ptop"><div class="wrap"><div class="acc">
+  <section class="acc-intro on-dark"><img src="doctor-patient.jpg" alt="">
+    <div><div class="eyebrow">Кабінет пацієнта</div><br><h1 class="h1" style="font-size:clamp(38px,4.6vw,64px)">Ваше здоров’я. <span class="hl">Ваша історія.</span></h1>
+    <p class="lead">Прийоми, призначення та результати — в одному місці.</p></div>
+    <ul class="ticks"><li>Майбутні й минулі прийоми</li><li>Рекомендації лікарів у письмовому вигляді</li><li>Результати аналізів — зазвичай за 24 години</li></ul>
+  </section>
+  <section class="acc-card" id="account-app" aria-label="Вхід і реєстрація">
+    <div class="modes acc-tabs" role="group" aria-label="Вхід або реєстрація"><button type="button" data-tab="login" aria-pressed="true">Вхід</button><button type="button" data-tab="signup" aria-pressed="false">Реєстрація</button></div>
+    <div data-view="login">
+      <h2 class="h3" style="font-size:28px">Увійти до кабінету</h2><p class="body" style="margin:8px 0 22px">Надішлемо код підтвердження на ваш номер.</p>
+      <form class="fstack" data-acc novalidate>
+        <label class="field white"><span>Телефон</span><input name="phone" type="tel" autocomplete="tel" required placeholder="+380" aria-describedby="ac-e1" data-err="Вкажіть номер у форматі +380"></label><p class="ferr" id="ac-e1" role="alert"></p>
+        <button class="btn btn-dark btn-block" type="submit">Отримати код<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      </form>
+    </div>
+    <div data-view="signup" hidden>
+      <h2 class="h3" style="font-size:28px">Створити кабінет</h2><p class="body" style="margin:8px 0 22px">Це займе хвилину. Пароль не потрібен.</p>
+      <form class="fstack" data-acc novalidate>
+        <div class="two"><label class="field white"><span>Ім’я</span><input name="name" autocomplete="given-name" required minlength="2" aria-describedby="ac-e2" data-err="Вкажіть ім’я"></label><label class="field white"><span>Прізвище</span><input name="surname" autocomplete="family-name" required minlength="2" aria-describedby="ac-e3" data-err="Вкажіть прізвище"></label></div>
+        <p class="ferr" id="ac-e2" role="alert"></p><p class="ferr" id="ac-e3" role="alert"></p>
+        <label class="field white"><span>Телефон</span><input name="phone" type="tel" autocomplete="tel" required placeholder="+380" aria-describedby="ac-e4" data-err="Вкажіть номер у форматі +380"></label><p class="ferr" id="ac-e4" role="alert"></p>
+        <label class="check"><input type="checkbox" required aria-describedby="ac-e5" data-err="Потрібна згода на обробку даних"><span>Погоджуюсь з <a href="privacy.html">політикою конфіденційності</a></span></label><p class="ferr" id="ac-e5" role="alert"></p>
+        <button class="btn btn-dark btn-block" type="submit">Зареєструватися<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      </form>
+    </div>
+    <div data-view="code" hidden>
+      <h2 class="h3" style="font-size:28px">Введіть код</h2><p class="body" style="margin:8px 0 22px">Надіслали SMS на <b id="code-phone"></b>. У демо-версії код — <b>1234</b>.</p>
+      <div class="code" role="group" aria-label="Код із SMS"><input inputmode="numeric" autocomplete="one-time-code" maxlength="1" aria-label="Цифра 1"><input inputmode="numeric" autocomplete="one-time-code" maxlength="1" aria-label="Цифра 2"><input inputmode="numeric" autocomplete="one-time-code" maxlength="1" aria-label="Цифра 3"><input inputmode="numeric" autocomplete="one-time-code" maxlength="1" aria-label="Цифра 4"></div>
+      <p class="ferr" id="code-err" role="alert" style="margin:12px 0 0"></p>
+      <button class="btn btn-soft" type="button" id="code-back" style="margin-top:20px;background:#fff"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> Змінити номер</button>
+    </div>
+    <div data-view="cab" hidden>
+      <div class="eyebrow" style="background:#fff">Демо-кабінет</div>
+      <h2 class="h3" style="font-size:28px">Вітаємо в Nuvia!</h2><p class="body" style="margin:8px 0 22px">Так виглядатиме ваш кабінет після першого візиту.</p>
+      <div class="cab-visit" id="cab-next"><span class="pill-ok">Підтверджено</span><b>Консультація кардіолога з ЕКГ</b><span class="small">Андрій Левицький · четвер, 16:30 · каб. 204</span></div>
+      <div class="cab-list"><div><span>Загальний аналіз крові</span><b>Готово</b></div><div><span>Рекомендації терапевта</span><b>PDF · 2 стор.</b></div><div><span>Наступний контроль</span><b>через 3 місяці</b></div></div>
+      <div class="btns" style="margin-top:22px"><a class="btn btn-dark" href="booking.html">Новий запис<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><button class="btn btn-outline" type="button" id="cab-out">Вийти</button></div>
+    </div>
+    <p class="demo-note">Демо-версія для портфоліо: дані нікуди не надсилаються.</p>
+    <p class="small" style="margin-top:18px">Не хочете реєструватися? <a class="link-arrow" href="booking.html">Записатися без кабінету</a></p>
+  </section>
+</div></div></main>
+<footer class="foot on-dark">
+  <div class="foot-top">
+    <div class="foot-brand">
+      <a href="index.html" style="display:flex;align-items:center;gap:12px;color:#fff"><svg width="36" height="36" viewBox="0 0 40 40" fill="none" aria-hidden="true"><circle cx="20" cy="20" r="19" stroke="#CAFFA6" stroke-width="2"/><path d="M12 28V12l16 16V12" stroke="#CAFFA6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><span style="font-size:26px;line-height:1;font-weight:500;letter-spacing:-.03em">Nuvia</span></a>
+      <p>Приватна клініка сімейної медицини та діагностики у Львові. Лікування, у якому все зрозуміло.</p>
+    </div>
+    <div class="foot-cols">
+      <div class="foot-col"><b>Сайт</b><a href="services.html">Послуги</a><a href="doctors.html">Лікарі</a><a href="prices.html">Ціни</a><a href="about.html">Про клініку</a><a href="blog.html">Блог</a></div>
+      <div class="foot-col"><b>Контакти</b><span>Львів, вул. Прикладна, 12</span><span>Щодня 8:00–20:00</span><span>+38 (032) 000-00-00</span><span>hello@nuvia.example</span></div>
+      <div class="foot-col"><b>Пацієнтам</b><a href="booking.html">Запис онлайн</a><a href="account.html">Кабінет пацієнта</a><a href="index.html#faq">Часті питання</a><a href="privacy.html">Політика конфіденційності</a></div>
+    </div>
+  </div>
+  <div class="foot-bottom"><span>© 2026 Nuvia Clinic. Вигаданий проєкт для портфоліо.</span><span>Ліцензія МОЗ № 000 (умовна)</span></div>
+  <div class="mark" aria-hidden="true">Nuvia</div>
+</footer>
+<script src="data.js"></script>
+<script src="pages.js"></script>
+</body></html>

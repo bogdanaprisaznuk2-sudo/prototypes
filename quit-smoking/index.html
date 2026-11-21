@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quit smoking prototype</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="phone" id="phone">
+
+  <!-- ============================ HOME ============================ -->
+  <section class="screen" id="home" aria-label="Home">
+    <div class="home-head">
+      <div class="statusbar" data-sb></div>
+      <div class="greet">
+        <div class="greet-l">
+          <div class="avatar"><span class="shape"><img src="assets/avatar.png" alt="Emma"></span></div>
+          <div>
+            <p class="greet-hi">Good morning,</p>
+            <p class="greet-name">Emma</p>
+          </div>
+        </div>
+        <div class="hdr-icons" data-hdr-icons></div>
+      </div>
+      <div class="week" id="week"></div>
+      <div class="card checkin">
+        <div style="width:214px;display:flex;flex-direction:column;gap:4px">
+          <p class="t-l">Daily Check-In</p>
+          <p class="t-xsr">Tell us how you’re feeling today</p>
+        </div>
+        <button class="btn btn-primary btn-sm" data-sheet="checkin" id="checkinBtn">Check-in</button>
+      </div>
+    </div>
+
+    <div class="home-body">
+      <div class="sec">
+        <p class="t-l">Your progress</p>
+        <div class="row">
+          <div class="card prog-main">
+            <div class="prog-top">
+              <div class="days">
+                <p class="days-n" data-bind="days">3</p>
+                <div class="days-t"><p>days</p><p class="c-500" data-bind="clock">00:02:31</p></div>
+              </div>
+              <div class="vitals">
+                <div class="vital"><img class="heart" src="assets/heart.svg" alt=""><span>86</span></div>
+                <div class="vital">
+                  <span class="steps" aria-hidden="true">
+                    <span style="left:1px;top:5.25px;width:15px;height:9.75px"><img src="assets/steps-1.svg" alt="" style="left:-1.48%;top:-1.51%;width:105.65%;height:107.92%"></span>
+                    <span style="left:1.75px;top:0;width:13.5px;height:12.75px"><img src="assets/steps-2.svg" alt="" style="left:-4.63%;top:5.98%;width:109.26%;height:98.92%"></span>
+                    <span style="left:7.75px;top:6px;width:3px;height:.75px"><img src="assets/steps-3.svg" alt="" style="left:-20.84%;top:-83.35%;width:141.68%;height:266.7%"></span>
+                    <span style="left:8.5px;top:7.5px;width:3px;height:.75px"><img src="assets/steps-4.svg" alt="" style="left:-20.84%;top:-80.85%;width:125.89%;height:264.2%"></span>
+                    <span style="left:1px;top:15px;width:3.75px;height:0"><img src="assets/steps-5.svg" alt="" style="left:-16.67%;top:-.63px;width:133.34%;height:1.26px"></span>
+                    <span style="left:1px;top:12.75px;width:1.5px;height:0"><img src="assets/steps-6.svg" alt="" style="left:-41.67%;top:-.63px;width:183.34%;height:1.26px"></span>
+                  </span>
+                  <span>2,568</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="phase-row"><span>Detox phase</span><span>2 weeks</span></div>
+              <div class="prog-bar"><i style="width:16.67%"></i></div>
+            </div>
+          </div>
+          <div class="card mascot" aria-roledescription="carousel" aria-label="Your companions">
+            <div class="m-track" id="mTrack" tabindex="0">
+              <button class="m-slide" data-action="companion" aria-label="Sprout — open your companion"><span class="mascot-img"><img src="assets/companion.png" alt=""></span></button>
+              <button class="m-slide" data-action="companion" aria-label="Succulent — open your companion"><span class="mascot-img pot-slide"><img src="assets/pot.png" alt=""></span></button>
+              <button class="m-slide" data-action="grow" aria-label="Add a companion"><img class="m-add" src="assets/ic-plus.svg" alt=""></button>
+            </div>
+            <div class="dots" id="mDots"><button class="on" aria-label="Companion 1"></button><button aria-label="Companion 2"></button><button aria-label="Add companion"></button></div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="card stat"><p class="t-sr c-500">Saved</p><div class="stat-wrap"><p class="stat-v" data-bind="saved">$42</p><span class="chip">at $3,37 / pack</span></div></div>
+          <div class="card stat"><p class="t-sr c-500">Not smoked</p><div class="stat-wrap"><p class="stat-v" data-bind="notSmoked">124</p><span class="chip">cigarettes</span></div></div>
+        </div>
+        <div class="row">
+          <div class="card stat"><p class="t-sr c-500">Life back</p><div class="stat-wrap"><p class="stat-v" data-bind="lifeBack">11h</p><span class="chip">at 11 min/cig</span></div></div>
+          <div class="card stat"><p class="t-sr c-500">Milestones</p><div class="stat-wrap"><p class="stat-v">2</p><span class="chip">at 12 reached</span></div></div>
+        </div>
+      </div>
+
+      <button class="craving" data-go="pause">
+        <img class="glow" src="assets/card-glow.svg" alt="">
+        <div class="craving-c">
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <p class="t-l">Feeling a craving?</p>
+            <p class="t-xsr">Breathe through it — passes in 3 min</p>
+          </div>
+          <span class="btn btn-primary btn-sm">Start now</span>
+        </div>
+        <div class="craving-art" aria-hidden="true">
+          <img class="r r1" src="assets/craving-ring-1.svg" alt="">
+          <img class="r r2" src="assets/craving-ring-2.svg" alt="">
+          <img class="r r3" src="assets/craving-ring-3.svg" alt="">
+          <img class="girl" src="assets/meditation.png" alt="">
+        </div>
+      </button>
+
+      <div class="sec">
+        <div class="assist-head">
+          <p class="t-l" style="white-space:nowrap">Craving Assistance</p>
+          <button class="btn-link" data-go="library">See all</button>
+        </div>
+        <div class="assist">
+          <button class="card assist-i" data-go="chat"><img class="ico32" src="assets/ic-ai-chat.svg" alt=""><span>AI Chat</span></button>
+          <button class="card assist-i" data-go="pause" data-mode="meditate"><span class="ico32 yoga"><span><img src="assets/ic-yoga.svg" alt=""></span></span><span>Meditation</span></button>
+          <button class="card assist-i" data-go="pause" data-mode="box"><img class="ico32" src="assets/ic-wind.svg" alt=""><span>Breathing</span></button>
+          <button class="card assist-i" data-go="library"><span class="more-ico" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>More</span></button>
+        </div>
+      </div>
+
+      <button class="card rewards" data-go="rewards">
+        <div class="rw-head">
+          <div class="rw-title">
+            <span class="rw-ico"><img src="assets/ic-reward.svg" alt=""></span>
+            <div>
+              <p class="t-m" style="color:#2a2929">Rewards</p>
+              <p class="rw-xp"><b data-bind="xp">50 XP</b> earned</p>
+            </div>
+          </div>
+          <span class="arrow44"><img src="assets/ic-chevron-right.svg" alt=""></span>
+        </div>
+        <div class="rw-rows">
+          <div class="split"><span style="color:var(--ink)">Next reward</span><span class="t-xs c-500">+50 XP at 25%</span></div>
+          <div class="bar"><i data-bind-width="reward" style="width:48px"></i></div>
+          <div class="split">
+            <div><p style="color:var(--ink)">Achieved</p><p class="semi c-500" data-bind="achieved">16%</p></div>
+            <div class="r" style="color:var(--ink)"><p>Milestone</p><p class="semi">25%</p></div>
+          </div>
+        </div>
+      </button>
+
+      <div class="fact">
+        <p style="font-weight:500;color:var(--n500)">Today's fact</p>
+        <p>Your body is clearing nicotine — the hardest stretch. At 72 hours, nicotine is fully out of your body — breathing is starting to feel easier right now.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ PROGRESS ============================ -->
+  <section class="screen" id="progress" aria-label="Progress" hidden>
+    <div class="statusbar" data-sb></div>
+    <div class="page-hdr"><p class="t-h5 c-ink">Progress</p><div class="hdr-icons" data-hdr-icons></div></div>
+    <div class="pg-body">
+      <div class="sec">
+        <p class="t-l">Phases</p>
+        <div class="card phase">
+          <img class="glow" src="assets/card-glow.svg" alt="">
+          <div class="phase-desc">
+            <div><p class="t-l">Detox</p><p class="t-xsr c-500">Your body is clearing nicotine — the hardest stretch</p></div>
+            <img src="assets/lungs.png" alt="">
+          </div>
+          <div class="stage-info">
+            <div class="split-xs"><span style="color:var(--ink)">Stage 2 of 5</span><span class="t-xs c-500" data-bind="untilRepair">4 days until Repair</span></div>
+            <div class="bar"><i style="width:28px"></i></div>
+            <span class="stage-dots"><img src="assets/stage-dots.svg" alt=""></span>
+            <div class="split-xs t-xs" style="color:var(--ink)"><span>0 day</span><span>60+ days</span></div>
+          </div>
+          <button class="btn btn-secondary btn-sm btn-block" data-sheet="stages">View all stages <img src="assets/ic-chevron-down.svg" alt="" width="20" height="20"></button>
+        </div>
+      </div>
+
+      <div class="card companion">
+        <div class="comp-head">
+          <div>
+            <img src="assets/ic-companion.svg" alt="" width="32" height="32">
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <p class="t-m" style="color:#2a2929">Your companion</p>
+              <p class="t-xs c-500" style="line-height:normal">Growing stronger — just like you</p>
+            </div>
+          </div>
+          <span class="arrow44"><img src="assets/ic-chevron-right.svg" alt=""></span>
+        </div>
+        <div class="comp-stage">
+          <div class="pot" id="pot"><img src="assets/pot.png" alt="Your succulent"></div>
+          <div class="dots gray"><i></i><i class="on"></i><i></i></div>
+          <div class="comp-actions">
+            <button data-action="grow" aria-label="Add"><img class="plus" src="assets/ic-plus.svg" alt=""></button>
+            <button class="water" data-action="water" aria-label="Water your plant"><img src="assets/ic-water.svg" alt=""></button>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;width:100%">
+          <div class="split-xs t-xs"><span class="c-primary">Succulent</span><span class="c-500">Next: <span class="c-600">Rosette</span></span></div>
+          <div class="bar"><i data-bind-width="plant" style="width:48px"></i></div>
+          <div class="split-xs t-xs" style="color:var(--ink)"><span>0 day</span><span>7 days</span></div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <p class="t-l">Craving Frequency</p>
+        <div class="card chart-card">
+          <div class="chart-in">
+            <div class="tabs" role="tablist" id="chartTabs">
+              <button class="tab" role="tab" aria-selected="true">Weekly</button>
+              <button class="tab" role="tab" aria-selected="false">Monthly</button>
+              <button class="tab" role="tab" aria-selected="false">All time</button>
+            </div>
+            <div class="chart-box">
+              <div class="graph" aria-label="Craving intensity this week, Wednesday 5 out of 10">
+                <span class="g-grid"><img src="assets/chart-grid.svg" alt=""></span>
+                <span class="g-area"><img src="assets/chart-area.svg" alt=""></span>
+                <div class="g-x"><p class="lt">00:00</p><p class="lt">01:00</p><p class="lt">02:00</p><p class="lt">03:00</p><p>Mon</p><p>Tue</p><p>Wed</p><p>Thu</p><p>Fri</p><p>Sat</p><p>Sun</p></div>
+                <span class="g-l78"><img src="assets/chart-line78.svg" alt=""></span>
+                <span class="g-curve"><img src="assets/chart-curve.svg" alt=""></span>
+                <span class="g-l81"><img src="assets/chart-line81.svg" alt=""></span>
+                <div class="g-y"><p>10</p><p>8</p><p>6</p><p>4</p><p>2</p><p>0</p></div>
+                <span class="g-l80"><img src="assets/chart-line80.svg" alt=""></span>
+                <span class="g-pt"><img src="assets/chart-point.svg" alt=""></span>
+                <p class="tip" style="left:4px;top:4px;background:none;padding:0">21/01, 15:00</p>
+              </div>
+              <div class="tip tip-a">05/07, 15:24</div>
+              <div class="tip tip-b">350</div>
+            </div>
+            <div class="tip tip-v"><div><span>Craving</span><span>5 / 10</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <p class="t-l">Health Timeline</p>
+        <div class="card timeline" id="timeline"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ PAUSE ============================ -->
+  <section class="screen" id="pause" aria-label="Pause" hidden>
+    <div class="statusbar" data-sb></div>
+    <div class="page-hdr"><p class="t-h5">Pause</p><div class="hdr-icons" data-hdr-icons></div></div>
+    <div class="pause-body">
+      <div class="breath" id="breath">
+        <div class="tabs" role="tablist" id="breathTabs">
+          <button class="tab" role="tab" data-mode="box" aria-selected="true">Box breathing</button>
+          <button class="tab" role="tab" data-mode="478" aria-selected="false">4-7-8</button>
+          <button class="tab" role="tab" data-mode="meditate" aria-selected="false">Meditate</button>
+        </div>
+        <div class="anim">
+          <div class="orb" id="orb">
+            <img class="r1" src="assets/pause-ring-1.svg" alt="">
+            <img class="r2" src="assets/pause-ring-2.svg" alt="">
+            <img class="girl" src="assets/meditation.png" alt="">
+          </div>
+        </div>
+        <button class="play" id="play" aria-label="Start exercise"><img src="assets/ic-play.svg" alt=""></button>
+        <div class="timer" aria-live="polite"><b id="tTime">03:00</b><p class="t-sr c-500" id="tPhase">4 seconds</p></div>
+      </div>
+      <div class="pause-actions">
+        <button class="btn btn-primary btn-md" data-action="madeit">I made it through</button>
+        <div class="links">
+          <button class="btn-link" data-sheet="else">Need something else?</button>
+          <button class="btn-link btn-danger-link" data-sheet="reset">I smoked</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================ NOTIFICATIONS ============================ -->
+  <section class="screen detail" id="notifications" aria-label="Notifications" hidden>
+    <div class="statusbar" data-sb></div>
+    <div class="page-hdr"><div class="hdr-l"><button class="back" data-back aria-label="Back"><img src="assets/ic-back.svg" alt=""></button><p class="t-h5 c-ink">Notifications</p></div><button class="btn-link t-s" id="markAll">Mark all read</button></div>
+    <div class="pg-body"><div id="notifList" class="stack-16"></div></div>
+  </section>
+
+  <!-- ============================ LIBRARY ============================ -->
+  <section class="screen" id="library" aria-label="Library" hidden>
+    <div class="statusbar" data-sb></div>
+    <div class="page-hdr"><p class="t-h5 c-ink">Library</p><div class="hdr-icons" data-hdr-icons></div></div>
+    <div class="pg-body">
+      <div class="tabs" role="tablist" id="libTabs">
+        <button class="tab" role="tab" data-cat="all" aria-selected="true">All</button>
+        <button class="tab" role="tab" data-cat="Cravings" aria-selected="false">Cravings</button>
+        <button class="tab" role="tab" data-cat="Habits" aria-selected="false">Habits</button>
+        <button class="tab" role="tab" data-cat="Mindset" aria-selected="false">Mindset</button>
+      </div>
+      <button class="craving lib-feature" data-story="0">
+        <img class="glow" src="assets/card-glow.svg" alt="">
+        <div class="craving-c">
+          <span class="chip chip-green">Read this first</span>
+          <p class="t-l">The 3-minute wave</p>
+          <p class="t-xsr">Why a craving peaks and passes — and how to ride it out.</p>
+        </div>
+        <div class="craving-art" aria-hidden="true">
+          <img class="r r1" src="assets/craving-ring-1.svg" alt=""><img class="r r2" src="assets/craving-ring-2.svg" alt=""><img class="r r3" src="assets/craving-ring-3.svg" alt="">
+          <img class="girl" src="assets/meditation.png" alt="">
+        </div>
+      </button>
+      <div class="sec"><p class="t-l">Short stories</p><div id="storyList" class="stack-8"></div></div>
+    </div>
+  </section>
+
+  <!-- ============================ STORY ============================ -->
+  <section class="screen detail" id="story" aria-label="Story" hidden>
+    <div class="statusbar" data-sb></div>
+    <div class="page-hdr"><div class="hdr-l"><button class="back" data-back aria-label="Back"><img src="assets/ic-back.svg" alt=""></button><p class="t-h5 c-ink">Story</p></div></div>
+    <div class="pg-body"><article class="card story-card" id="storyBody"></article></div>
+  </section>
+
+  <!-- ============================ PROFILE ============================ -->
+  <section class="screen" id="profile" aria-label="Profile" hidden>
+    <div class="statusbar" data-sb></div>
+    <div class="page-hdr"><p class="t-h5 c-ink">Profile</p><div class="hdr-icons" data-hdr-icons></div></div>
+    <div class="pg-body">
+      <div class="card prof-card">
+        <img class="glow" src="assets/card-glow.svg" alt="">
+        <div class="avatar avatar-64"><span class="shape"><img src="assets/avatar.png" alt="Emma"></span></div>
+        <div style="flex:1;min-width:0">
+          <p class="greet-name" style="margin:0" id="profName">Emma Wilson</p>
+          <p class="t-xsr c-500" data-bind="since">Smoke-free since —</p>
+        </div>
+        <button class="btn btn-secondary btn-sm" data-action="editProfile" id="editProfileBtn">Edit</button>
+      </div>
+      <div class="row">
+        <div class="card stat"><p class="t-sr c-500">Current streak</p><div class="stat-wrap"><p class="stat-v"><span data-bind="days">3</span>&nbsp;days</p><span class="chip">best <span data-bind="best">3</span> days</span></div></div>
+        <div class="card stat"><p class="t-sr c-500">Total XP</p><div class="stat-wrap"><p class="stat-v" data-bind="xpNum">50</p><span class="chip"><span data-bind="shields">1</span>&nbsp;shield</span></div></div>
+      </div>
+      <div class="sec">
+        <p class="t-l">Your plan</p>
+        <div class="card list">
+          <div class="li"><span class="li-ic"><img src="assets/fire.svg" alt=""></span><div class="li-t"><p class="t-m">Cigarettes per day</p><p class="t-xsr c-500">Before quitting</p></div>
+            <div class="stepper"><button data-step="cpd" data-d="-1" aria-label="Fewer">−</button><b data-bind="cpd">20</b><button data-step="cpd" data-d="1" aria-label="More">+</button></div></div>
+          <div class="li"><span class="li-ic"><img src="assets/ic-reward.svg" alt=""></span><div class="li-t"><p class="t-m">Pack price</p><p class="t-xsr c-500">20 cigarettes</p></div>
+            <div class="stepper"><button data-step="price" data-d="-0.1" aria-label="Cheaper">−</button><b data-bind="price">$3,37</b><button data-step="price" data-d="0.1" aria-label="More expensive">+</button></div></div>
+          <div class="li"><span class="li-ic"><img src="assets/ic-companion.svg" alt=""></span><div class="li-t"><p class="t-m">My reason</p><p class="t-xsr c-500" id="profReason">“To run with my daughter without stopping.”</p></div></div>
+        </div>
+      </div>
+      <div class="sec">
+        <p class="t-l">Settings</p>
+        <div class="card list">
+          <label class="li"><span class="li-ic"><img src="assets/bell.svg" alt=""></span><div class="li-t"><p class="t-m">Craving reminders</p><p class="t-xsr c-500">At times you usually smoke</p></div><input type="checkbox" class="switch" data-pref="remind" checked></label>
+          <label class="li"><span class="li-ic"><img src="assets/heart.svg" alt=""></span><div class="li-t"><p class="t-m">Daily check-in</p><p class="t-xsr c-500">Every day at 20:00</p></div><input type="checkbox" class="switch" data-pref="daily" checked></label>
+          <button class="li" data-action="watch"><span class="li-ic"><img src="assets/heart.svg" alt=""></span><div class="li-t"><p class="t-m">Fitness watch</p><p class="t-xsr c-500" id="watchState">Heart rate and steps on Home</p></div><img class="li-arrow" src="assets/ic-arrow-right.svg" alt=""></button>
+          <button class="li" data-go="journal"><span class="li-ic"><img src="assets/ic-book.svg" alt=""></span><div class="li-t"><p class="t-m">Journal</p><p class="t-xsr c-500">Cravings, slips and check-ins</p></div><img class="li-arrow" src="assets/ic-arrow-right.svg" alt=""></button>
+          <button class="li" data-go="rewards"><span class="li-ic"><img src="assets/ic-reward.svg" alt=""></span><div class="li-t"><p class="t-m">Rewards</p><p class="t-xsr c-500">Spend XP on shields</p></div><img class="li-arrow" src="assets/ic-arrow-right.svg" alt=""></button>
+          <button class="li" data-sheet="friend"><span class="li-ic"><img src="assets/ic-user.svg" alt=""></span><div class="li-t"><p class="t-m">Support circle</p><p class="t-xsr c-500">2 people</p></div><img class="li-arrow" src="assets/ic-arrow-right.svg" alt=""></button>
+        </div>
+      </div>
+      <div class="two"><button class="btn btn-secondary btn-lg" data-go="onboarding">Replay onboarding</button><button class="btn btn-outline btn-lg" data-action="resetDemo">Reset demo</button></div>
+      <p class="t-xsr c-500" style="text-align:center">Prototype · sample data</p>
+    </div>
+  </section>
+
+  <!-- ============================ REWARDS ============================ -->
+  <section class="screen detail" id="rewards" aria-label="Rewards" hidden>
+    <div class="statusbar" data-sb></div>
+    <div class="page-hdr"><div class="hdr-l"><button class="back" data-back aria-label="Back"><img src="assets/ic-back.svg" alt=""></button><p class="t-h5 c-ink">Rewards</p></div></div>
+    <div class="pg-body">
+      <div class="card rewards" style="padding:16px">
+        <div class="rw-title"><span class="rw-ico"><img src="assets/ic-reward.svg" alt=""></span><div><p class="t-sr c-500">Your balance</p><p class="xp-big"><span data-bind="xpNum">50</span> XP</p></div></div>
+        <div class="rw-rows">
+          <div class="split"><span style="color:var(--ink)">Next reward</span><span class="t-xs c-500">+50 XP at 25%</span></div>
+          <div class="bar"><i data-bind-width="reward" style="width:15%"></i></div>
+          <div class="split"><div><p style="color:var(--ink)">Achieved</p><p class="semi c-500" data-bind="achieved">16%</p></div><div class="r" style="color:var(--ink)"><p>Milestone</p><p class="semi">25%</p></div></div>
+        </div>
+      </div>
+      <div class="sec"><p class="t-l">Spend XP</p><div class="stack-8" id="shop"></div></div>
+      <div class="sec">
+        <p class="t-l">Ways to earn</p>
+        <div class="card list">
+          <div class="li"><span class="li-ic"><img src="assets/ic-wind.svg" alt=""></span><div class="li-t"><p class="t-m">Get through a craving</p><p class="t-xsr c-500">Tap “I made it through” on Pause</p></div><span class="chip chip-green">+10 XP</span></div>
+          <div class="li"><span class="li-ic"><img src="assets/heart.svg" alt=""></span><div class="li-t"><p class="t-m">Daily check-in</p><p class="t-xsr c-500">Once a day</p></div><span class="chip chip-green">+10 XP</span></div>
+          <div class="li"><span class="li-ic"><img src="assets/ic-book.svg" alt=""></span><div class="li-t"><p class="t-m">Read a short story</p><p class="t-xsr c-500">In Library</p></div><span class="chip chip-green">+5 XP</span></div>
+          <div class="li"><span class="li-ic"><img src="assets/ic-water.svg" alt=""></span><div class="li-t"><p class="t-m">Water your companion</p><p class="t-xsr c-500">On Progress</p></div><span class="chip chip-green">+2 XP</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ AI CHAT ============================ -->
+  <section class="screen detail chat-screen" id="chat" aria-label="AI Chat" hidden>
+    <div class="statusbar" data-sb></div>
+    <div class="page-hdr"><div class="hdr-l"><button class="back" data-back aria-label="Back"><img src="assets/ic-back.svg" alt=""></button><div class="bot-av"><img src="assets/companion.png" alt=""></div><div><p class="t-m c-ink">Sprout</p><p class="t-xsr c-primary">AI support · demo</p></div></div></div>
+    <div class="chat-log" id="chatLog" aria-live="polite"></div>
+    <div class="chat-quick" id="chatQuick"></div>
+    <form class="chat-bar" id="chatForm"><input id="chatInput" autocomplete="off" placeholder="Write how you feel…" aria-label="Message"><button class="send" aria-label="Send"><img src="assets/ic-send.svg" alt=""></button></form>
+  </section>
+
+
+  <!-- ============================ JOURNAL ============================ -->
+  <section class="screen detail" id="journal" aria-label="Journal" hidden>
+    <div class="statusbar" data-sb></div>
+    <div class="page-hdr"><div class="hdr-l"><button class="back" data-back aria-label="Back"><img src="assets/ic-back.svg" alt=""></button><p class="t-h5 c-ink">Journal</p></div></div>
+    <div class="pg-body">
+      <div class="row">
+        <div class="card stat"><p class="t-sr c-500">Cravings passed</p><div class="stat-wrap"><p class="stat-v" data-bind="jPassed">0</p><span class="chip chip-green">logged automatically</span></div></div>
+        <div class="card stat"><p class="t-sr c-500">Top trigger</p><div class="stat-wrap"><p class="stat-v" style="font-size:18px" data-bind="jTrigger">—</p><span class="chip">from your slips</span></div></div>
+      </div>
+      <div id="journalList" class="stack-8"></div>
+    </div>
+  </section>
+
+  <!-- ============================ ONBOARDING ============================ -->
+  <section class="screen detail onb" id="onboarding" aria-label="Set up your plan" hidden>
+    <div class="statusbar" data-sb></div>
+    <div class="onb-top"><div class="dots gray" id="onbDots"><i class="on"></i><i></i><i></i></div><button class="btn-link t-s" data-onb="skip">Skip</button></div>
+    <div class="onb-step onb-welcome" data-step="0">
+      <div class="welcome-art">
+        <img class="w-r1" src="assets/craving-ring-1.svg" alt=""><img class="w-r2" src="assets/craving-ring-2.svg" alt="">
+        <img class="w-pet" src="assets/companion.png" alt="">
+        <span class="w-chip w-c1"><img src="assets/fire.svg" alt="">3-day streak</span>
+        <span class="w-chip w-c2"><img src="assets/heart.svg" alt="">Heart rate normal</span>
+        <span class="w-chip w-c3"><img src="assets/ic-wind.svg" alt="">Craving passed</span>
+      </div>
+      <div class="welcome-copy">
+        <p class="w-title">Quit smoking,<br>one breath at a time</p>
+        <p class="t-mr c-600">Track your progress, get through cravings in 3 minutes and grow a companion along the way.</p>
+      </div>
+    </div>
+    <div class="onb-step" data-step="1" hidden>
+      <div class="onb-art"><img src="assets/companion.png" alt=""></div>
+      <p class="t-h5 c-ink">Hi, I’m Sprout</p>
+      <p class="t-mr c-600">I’ll grow with you while you quit. Let’s set up your plan — it takes 30 seconds.</p>
+      <label class="field"><span class="t-s">Your name</span><input id="onbName" value="Emma" autocomplete="given-name"></label>
+    </div>
+    <div class="onb-step" data-step="2" hidden>
+      <p class="t-h5 c-ink">Your smoking habit</p>
+      <p class="t-mr c-600">We use this to count money saved and cigarettes not smoked.</p>
+      <div class="card list">
+        <div class="li"><div class="li-t"><p class="t-m">Cigarettes per day</p></div><div class="stepper"><button data-step="cpd" data-d="-1" aria-label="Fewer">−</button><b data-bind="cpd">20</b><button data-step="cpd" data-d="1" aria-label="More">+</button></div></div>
+        <div class="li"><div class="li-t"><p class="t-m">Pack price</p></div><div class="stepper"><button data-step="price" data-d="-0.1" aria-label="Cheaper">−</button><b data-bind="price">$3,37</b><button data-step="price" data-d="0.1" aria-label="More expensive">+</button></div></div>
+      </div>
+      <p class="t-m">When did you quit?</p>
+      <div class="chips" id="onbWhen" role="radiogroup">
+        <button class="trig" role="radio" aria-checked="false" data-when="0">Today</button>
+        <button class="trig" role="radio" aria-checked="true" data-when="3">3 days ago</button>
+        <button class="trig" role="radio" aria-checked="false" data-when="7">A week ago</button>
+      </div>
+    </div>
+    <div class="onb-step" data-step="3" hidden>
+      <p class="t-h5 c-ink">Why are you quitting?</p>
+      <p class="t-mr c-600">We’ll remind you of this when a craving hits.</p>
+      <div class="chips" id="onbWhy">
+        <button class="trig" aria-pressed="true">My health</button><button class="trig" aria-pressed="false">My family</button>
+        <button class="trig" aria-pressed="false">Save money</button><button class="trig" aria-pressed="false">Breathe easier</button><button class="trig" aria-pressed="false">Feel free</button>
+      </div>
+    </div>
+    <div class="onb-step onb-center" data-step="4" hidden>
+      <div class="build-orb" id="buildOrb">
+        <svg class="ring" viewBox="0 0 160 160" aria-hidden="true"><circle cx="80" cy="80" r="72" stroke="#e5e5e5" stroke-width="8" fill="none"/><circle id="buildArc" cx="80" cy="80" r="72" stroke="#009966" stroke-width="8" fill="none" stroke-linecap="round" stroke-dasharray="452.4" stroke-dashoffset="452.4" transform="rotate(-90 80 80)"/></svg>
+        <img src="assets/companion.png" alt="">
+      </div>
+      <p class="build-pct" id="buildPct" aria-live="polite">0%</p>
+      <div class="sheet-head" style="align-items:center;text-align:center"><p class="t-h5 c-ink">Building your plan</p><p class="t-mr c-600">Preparing recommendations just for you.</p></div>
+      <ul class="build-list" id="buildList">
+        <li><span class="bl-ic"></span>Analysing your smoking habit</li>
+        <li><span class="bl-ic"></span>Calculating money and life you’ll get back</li>
+        <li><span class="bl-ic"></span>Picking craving tools that fit you</li>
+        <li><span class="bl-ic"></span>Setting up your companion</li>
+      </ul>
+    </div>
+    <div class="onb-step onb-ready" data-step="5" hidden>
+      <div class="ready-badge" aria-hidden="true"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#009966"/><path d="M20 33l8 8 16-17" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="sheet-head" style="align-items:center;text-align:center"><p class="t-h5 c-ink" id="readyTitle">Your plan is ready!</p><p class="t-mr c-600">Here’s what quitting gives you back — and how we’ll help.</p></div>
+      <div class="row">
+        <div class="card stat"><p class="t-sr c-500">You’ll save</p><div class="stat-wrap"><p class="stat-v" id="readyMoney">$100</p><span class="chip">every month</span></div></div>
+        <div class="card stat"><p class="t-sr c-500">Not smoked</p><div class="stat-wrap"><p class="stat-v" id="readyCigs">140</p><span class="chip">cigarettes a week</span></div></div>
+      </div>
+      <div class="sec"><p class="t-l">Recommended for you</p><div class="card list" id="readyRecs"></div></div>
+    </div>
+    <div class="onb-actions" id="onbActions"><button class="btn btn-primary btn-lg btn-block" id="onbNext">Get started</button><button class="btn-link onb-login" id="onbLogin">I already have an account</button></div>
+  </section>
+
+  <button class="ai-fab" id="aiFab" data-go="chat" aria-label="Ask Sprout, your AI assistant"><span class="bot-av"><img src="assets/companion.png" alt=""></span><span class="ai-badge" aria-hidden="true">AI</span></button>
+
+  <!-- ============================ NAV ============================ -->
+  <nav class="nav" id="nav" aria-label="Main">
+    <div class="nav-in">
+      <div class="nav-bg"><img src="assets/nav-bg.svg" alt=""></div>
+      <div class="nav-actions">
+        <div>
+          <button class="nav-i" data-go="home" aria-label="Home"><img data-icon="home" src="assets/nav-home-active.svg" alt=""></button>
+          <button class="nav-i" data-go="progress" aria-label="Progress"><span class="chart"><img data-icon="chart" src="assets/nav-chart.svg" alt=""></span></button>
+        </div>
+        <div>
+          <button class="nav-i" data-go="library" aria-label="Library"><img data-icon="book" src="assets/nav-book.svg" alt=""></button>
+          <button class="nav-i" data-go="profile" aria-label="Profile"><img data-icon="user" src="assets/nav-user.svg" alt=""></button>
+        </div>
+      </div>
+      <button class="nav-pause" data-go="pause" aria-label="Pause — craving help"><img data-icon="pause" src="assets/nav-pause.svg" alt=""></button>
+    </div>
+  </nav>
+
+  <!-- ============================ SHEETS ============================ -->
+  <div class="scrim" id="scrim" hidden></div>
+
+  <div class="sheet" id="sheet-stages" role="dialog" aria-modal="true" aria-labelledby="st-h" hidden>
+    <button class="sheet-close" data-close aria-label="Close"><img src="assets/ic-close.svg" alt=""></button>
+    <div class="sheet-body">
+      <div class="sheet-head"><p class="t-h5r c-ink" id="st-h">Your Journey</p><p class="t-mr">What your body goes through, stage by stage.</p></div>
+      <div class="stages" id="stages"></div>
+    </div>
+  </div>
+
+  <div class="sheet" id="sheet-else" role="dialog" aria-modal="true" aria-labelledby="el-h" hidden>
+    <button class="sheet-close" data-close aria-label="Close"><img src="assets/ic-close.svg" alt=""></button>
+    <div class="sheet-body">
+      <div class="sheet-head"><p class="t-h5r c-ink" id="el-h">Need something else?</p><p class="t-mr">A few more ways to get through this moment.</p></div>
+      <div class="options">
+        <button class="opt" data-sheet="friend"><div class="opt-c"><span class="opt-ic"><img src="assets/ic-user.svg" alt=""></span><div><p class="t-m c-ink">Message a friend</p><p class="t-xsr c-500">Reach out to someone in your support circle</p></div></div><img src="assets/ic-arrow-right.svg" alt=""></button>
+        <button class="opt" data-go="chat"><div class="opt-c"><span class="opt-ic"><img src="assets/ic-message.svg" alt=""></span><div><p class="t-m c-ink">AI assistance</p><p class="t-xsr c-500">An AI-supported conversation for the moment</p></div></div><img src="assets/ic-arrow-right.svg" alt=""></button>
+        <button class="opt" data-go="library"><div class="opt-c"><span class="opt-ic"><img class="book" src="assets/ic-book.svg" alt=""></span><div><p class="t-m c-ink">Read short stories</p><p class="t-xsr c-500">Quick, evidence-based reads for hard moments</p></div></div><img src="assets/ic-arrow-right.svg" alt=""></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sheet" id="sheet-reset" role="dialog" aria-modal="true" aria-labelledby="rs-h" hidden>
+    <button class="sheet-close" data-close aria-label="Close"><img src="assets/ic-close.svg" alt=""></button>
+    <div class="sheet-body">
+      <div class="sheet-head"><p class="t-h5r c-ink" id="rs-h">Let’s start again ❤️</p><p class="t-mr">One cigarette doesn't erase what you've built. Coming back is what matters — and you're already doing that by opening this app.</p></div>
+      <div class="warn"><span class="warn-ic"><span><img src="assets/ic-warning.svg" alt=""></span></span><p>Continuing will reset your current streak. Your previous days and all your journal entries stay saved — nothing is deleted.</p></div>
+      <div class="two"><button class="btn btn-secondary btn-lg" data-close>Go back</button><button class="btn btn-primary btn-lg" data-sheet="triggers">Continue</button></div>
+    </div>
+  </div>
+
+  <div class="sheet" id="sheet-triggers" role="dialog" aria-modal="true" aria-labelledby="tr-h" hidden>
+    <button class="sheet-close" data-close aria-label="Close"><img src="assets/ic-close.svg" alt=""></button>
+    <div class="sheet-body">
+      <div class="sheet-head"><p class="t-h5r c-ink" id="tr-h">What triggered it?</p><p class="t-mr">Optional - help’s make the next attempt stronger.</p></div>
+      <div class="triggers" id="triggers">
+        <div class="trow"><button class="trig" aria-pressed="false">Stress or anxiety</button><button class="trig" aria-pressed="false">Social situation</button></div>
+        <div class="trow"><button class="trig" aria-pressed="false">After a meal</button><button class="trig" aria-pressed="false">Alcohol</button><button class="trig" aria-pressed="false">Other</button></div>
+      </div>
+      <button class="btn btn-bright btn-lg btn-block" id="trigContinue" disabled>Continue</button>
+    </div>
+  </div>
+
+  <div class="sheet" id="sheet-shield" role="dialog" aria-modal="true" aria-labelledby="sh-h" hidden>
+    <button class="sheet-close" data-close aria-label="Close"><img src="assets/ic-close.svg" alt=""></button>
+    <div class="sheet-body">
+      <div class="sheet-head"><p class="t-h5r c-ink" id="sh-h">Streak Shield</p><p class="t-mr">Use your <span class="c-primary">Streak Shield</span> it to protect your streak — this slip won't count as a reset. You earned this shield earlier.</p></div>
+      <div class="shield-box"><span class="shield-ic"><img src="assets/shield.png" alt=""></span><div><p class="t-xsr c-500"><span data-bind="shields">1</span> shield available</p><p class="t-s c-ink" style="line-height:21px">Your streak will stay intact</p></div></div>
+      <div class="stack"><button class="btn btn-bright btn-lg btn-block" data-action="useShield">Use my shield</button><button class="btn btn-outline btn-lg btn-block" data-action="resetStreak">Reset anyway</button></div>
+    </div>
+  </div>
+
+
+  <div class="sheet" id="sheet-checkin" role="dialog" aria-modal="true" aria-labelledby="ci-h" hidden>
+    <button class="sheet-close" data-close aria-label="Close"><img src="assets/ic-close.svg" alt=""></button>
+    <div class="sheet-body">
+      <div class="sheet-head"><p class="t-h5r c-ink" id="ci-h">Daily Check-In</p><p class="t-mr">How are you feeling today?</p></div>
+      <div class="moods" id="moods" role="radiogroup" aria-label="Mood"></div>
+      <div class="stack-8">
+        <div class="split-xs"><span class="t-m">Craving strength</span><span class="t-s c-primary"><span id="cravVal">3</span> / 10</span></div>
+        <input type="range" min="0" max="10" value="3" id="cravRange" class="range" aria-label="Craving strength, 0 to 10">
+      </div>
+      <div class="stack-8">
+        <p class="t-m">Anything you notice?</p>
+        <div class="chips" id="symptoms">
+          <button class="trig" aria-pressed="false">Irritable</button><button class="trig" aria-pressed="false">Restless</button><button class="trig" aria-pressed="false">Hungry</button>
+          <button class="trig" aria-pressed="false">Poor sleep</button><button class="trig" aria-pressed="false">Calm</button><button class="trig" aria-pressed="false">Proud</button>
+        </div>
+      </div>
+      <button class="btn btn-bright btn-lg btn-block" id="ciSave" disabled>Save check-in</button>
+    </div>
+  </div>
+
+  <div class="sheet" id="sheet-friend" role="dialog" aria-modal="true" aria-labelledby="fr-h" hidden>
+    <button class="sheet-close" data-close aria-label="Close"><img src="assets/ic-close.svg" alt=""></button>
+    <div class="sheet-body">
+      <div class="sheet-head"><p class="t-h5r c-ink" id="fr-h">Message a friend</p><p class="t-mr">Send a quick note to someone in your support circle.</p></div>
+      <div class="options">
+        <button class="opt" data-friend="Olena"><div class="opt-c"><span class="opt-ic ini">O</span><div><p class="t-m c-ink">Olena</p><p class="t-xsr c-500">Sister · usually replies fast</p></div></div><img src="assets/ic-arrow-right.svg" alt=""></button>
+        <button class="opt" data-friend="Mark"><div class="opt-c"><span class="opt-ic ini">M</span><div><p class="t-m c-ink">Mark</p><p class="t-xsr c-500">Friend · quit 2 years ago</p></div></div><img src="assets/ic-arrow-right.svg" alt=""></button>
+      </div>
+      <div class="msg-preview"><p class="t-xsr c-500">Message</p><p class="t-sr" id="friendMsg">Having a strong craving right now — can you talk for 5 minutes?</p></div>
+    </div>
+  </div>
+
+
+  <div class="sheet" id="sheet-success" role="dialog" aria-modal="true" aria-labelledby="sc-h" hidden>
+    <button class="sheet-close" data-close aria-label="Close"><img src="assets/ic-close.svg" alt=""></button>
+    <div class="sheet-body" style="align-items:center;text-align:center">
+      <div class="success-art"><img class="r1" src="assets/pause-ring-1.svg" alt=""><img class="girl" src="assets/meditation.png" alt=""></div>
+      <div class="sheet-head" style="align-items:center"><p class="t-h5r c-ink" id="sc-h">You made it through</p><p class="t-mr">That craving passed without a cigarette. Every one you ride out makes the next one weaker.</p></div>
+      <div class="row" style="width:100%">
+        <div class="card stat" style="border-color:var(--n200)"><p class="t-sr c-500">Earned</p><p class="stat-v">+10 XP</p></div>
+        <div class="card stat" style="border-color:var(--n200)"><p class="t-sr c-500">Cravings passed</p><p class="stat-v" data-bind="jPassed">1</p></div>
+      </div>
+      <p class="t-xsr c-500">Saved to your journal automatically.</p>
+      <button class="btn btn-primary btn-lg btn-block" data-go="home">Back to Home</button>
+    </div>
+  </div>
+
+
+  <div class="sheet" id="sheet-profile" role="dialog" aria-modal="true" aria-labelledby="pe-h" hidden>
+    <button class="sheet-close" data-close aria-label="Close"><img src="assets/ic-close.svg" alt=""></button>
+    <form class="sheet-body" id="profileForm" novalidate>
+      <div class="sheet-head"><p class="t-h5r c-ink" id="pe-h">Edit profile</p><p class="t-mr">This is how Sprout will greet you.</p></div>
+      <div class="pe-avatar">
+        <div class="avatar avatar-64"><span class="shape"><img src="assets/avatar.png" alt=""></span></div>
+        <button type="button" class="btn btn-secondary btn-sm" data-action="photo">Change photo</button>
+      </div>
+      <div class="two">
+        <label class="field" style="flex:1"><span class="t-s">First name</span><input id="peFirst" autocomplete="given-name" required maxlength="24"></label>
+        <label class="field" style="flex:1"><span class="t-s">Last name</span><input id="peLast" autocomplete="family-name" maxlength="24"></label>
+      </div>
+      <label class="field"><span class="t-s">Quit date</span><input id="peDate" type="date"></label>
+      <label class="field"><span class="t-s">My reason</span><textarea id="peReason" rows="2" maxlength="120"></textarea></label>
+      <p class="pe-err t-xsr" id="peErr" role="alert"></p>
+      <div class="two"><button type="button" class="btn btn-secondary btn-lg" data-close>Cancel</button><button class="btn btn-primary btn-lg" type="submit">Save</button></div>
+    </form>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

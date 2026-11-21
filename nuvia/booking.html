@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="uk" class="no-js"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Запис на прийом — Nuvia</title>
+<meta name="description" content="Онлайн-запис до лікаря клініки Nuvia або замовлення зворотного дзвінка.">
+<link rel="stylesheet" href="pages.css">
+</head>
+<body>
+<a class="skip" href="#main">До вмісту</a>
+<header class="hdr">
+  <div class="pill">
+    <a class="logo" href="index.html" aria-label="Nuvia — головна"><svg width="36" height="36" viewBox="0 0 40 40" fill="none" aria-hidden="true"><circle cx="20" cy="20" r="20" fill="#204654"/><path d="M12.5 28V12l15 16V12" stroke="#CAFFA6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Nuvia</span></a>
+    <nav class="nav" aria-label="Головне меню"><a class="nl" href="services.html">Послуги</a><a class="nl" href="doctors.html">Лікарі</a><a class="nl" href="prices.html">Ціни</a><a class="nl" href="about.html">Про клініку</a><a class="nl" href="blog.html">Блог</a><a class="nl" href="contacts.html">Контакти</a></nav>
+    <div class="hdr-r">
+      <a class="icon-btn" href="account.html" aria-label="Кабінет пацієнта" title="Кабінет пацієнта"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></a>
+      <a class="cta" href="booking.html">Записатися<span class="cta-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+      <button class="icon-btn burger" type="button" aria-label="Меню" aria-expanded="false" aria-controls="mmenu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg></button>
+    </div>
+    <nav class="mmenu" id="mmenu" aria-label="Мобільне меню"><a href="services.html">Послуги</a><a href="doctors.html">Лікарі</a><a href="prices.html">Ціни</a><a href="about.html">Про клініку</a><a href="blog.html">Блог</a><a href="contacts.html">Контакти</a><a href="account.html">Кабінет пацієнта</a><a class="btn btn-dark btn-block" href="booking.html">Записатися на прийом<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></nav>
+  </div>
+</header>
+<section class="phero on-dark phero-sm"><img class="phero-img" src="hero-poster.jpg" alt="">
+  <div class="phero-in"><nav class="crumbs" aria-label="Навігаційний шлях"><a href="index.html">Головна</a><span aria-hidden="true">/</span><span aria-current="page">Запис на прийом</span></nav><h1 class="h1">Запис <span class="hl">на прийом</span></h1><p class="lead">Оберіть лікаря та бажаний час — адміністратор підтвердить візит. Або замовте дзвінок, щоб узгодити деталі разом.</p></div>
+</section>
+<main id="main"><section class="sec-sm"><div class="wrap">
+<div class="bk" id="booking-app">
+  <form class="bk-main" id="bk-form" novalidate>
+    <div class="modes" role="group" aria-label="Спосіб запису"><button type="button" data-mode="online" aria-pressed="true">Онлайн-запис</button><button type="button" data-mode="callback" aria-pressed="false">Замовити дзвінок</button></div>
+    <div class="bk-step"><h2><i>1</i>Напрям і лікар</h2>
+      <div class="two"><label class="field"><span>Напрям</span><select id="bk-spec" name="spec"></select></label><label class="field"><span>Лікар</span><select id="bk-doc" name="doc"></select></label></div>
+    </div>
+    <div class="bk-step" data-only="online"><h2><i>2</i>Дата й час</h2>
+      <div class="days" id="bk-days" role="group" aria-label="Дата прийому"></div>
+      <div class="slots" id="bk-slots" role="group" aria-label="Вільний час"></div>
+      <p class="small" id="bk-noslots" hidden style="margin-top:12px">На цей день вільного часу немає. Оберіть інший день або замовте дзвінок.</p>
+      <p class="ferr" id="bk-err-time" role="alert" style="margin-top:10px"></p>
+    </div>
+    <div class="bk-step" data-only="callback" hidden><h2><i>2</i>Коли зателефонувати</h2><div class="chips" role="group" aria-label="Зручний час для дзвінка"><button type="button" class="chip" data-call="asap" aria-pressed="true">Якнайшвидше</button><button type="button" class="chip" data-call="morning" aria-pressed="false">До 12:00</button><button type="button" class="chip" data-call="day" aria-pressed="false">12:00–16:00</button><button type="button" class="chip" data-call="evening" aria-pressed="false">Після 16:00</button></div></div>
+    <div class="bk-step"><h2><i id="bk-n-contact">3</i>Ваші контакти</h2>
+      <div class="two">
+        <div><label class="field"><span>Ім’я та прізвище</span><input name="name" autocomplete="name" required minlength="2" placeholder="Олена Петренко" aria-describedby="bk-e1" data-err="Вкажіть ім’я"></label><p class="ferr" id="bk-e1" role="alert" style="margin-top:6px"></p></div>
+        <div><label class="field"><span>Телефон</span><input name="phone" type="tel" autocomplete="tel" required placeholder="+380" aria-describedby="bk-e2" data-err="Вкажіть номер у форматі +380"></label><p class="ferr" id="bk-e2" role="alert" style="margin-top:6px"></p></div>
+      </div>
+      <label class="field" style="margin-top:12px"><span>Що вас турбує (необов’язково)</span><textarea name="note" rows="3" placeholder="Коротко опишіть причину звернення"></textarea></label>
+      <label class="check" style="margin-top:16px"><input type="checkbox" name="consent" required aria-describedby="bk-e3" data-err="Потрібна згода на обробку даних"><span>Я погоджуюсь на обробку персональних даних відповідно до <a href="privacy.html">політики конфіденційності</a></span></label>
+      <p class="ferr" id="bk-e3" role="alert" style="margin-top:6px"></p>
+    </div>
+    <button class="btn btn-dark btn-block" id="bk-submit" type="submit">Записатися на прийом <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    <p class="demo-note">Демо-версія: заявка нікуди не надсилається, дані зберігаються лише в цій вкладці браузера.</p>
+  </form>
+  <aside class="bk-sum on-dark" aria-label="Ваш вибір" aria-live="polite">
+    <div class="eyebrow">Ваш візит</div><br>
+    <div class="bk-doc" id="s-doc"></div>
+    <div class="rows">
+      <div><span>Послуга</span><strong id="s-service"></strong></div>
+      <div><span id="s-when-l">Дата й час</span><strong id="s-when"></strong></div>
+      <div><span>Тривалість</span><strong id="s-dur"></strong></div>
+    </div>
+    <div class="bk-total"><span>До сплати в клініці</span><strong id="s-price"></strong></div>
+    <p class="small">Ціна фіксована, без доплат після візиту. Адміністратор підтвердить запис дзвінком або SMS.</p>
+  </aside>
+</div>
+</div></section></main>
+<footer class="foot on-dark">
+  <div class="foot-top">
+    <div class="foot-brand">
+      <a href="index.html" style="display:flex;align-items:center;gap:12px;color:#fff"><svg width="36" height="36" viewBox="0 0 40 40" fill="none" aria-hidden="true"><circle cx="20" cy="20" r="19" stroke="#CAFFA6" stroke-width="2"/><path d="M12 28V12l16 16V12" stroke="#CAFFA6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><span style="font-size:26px;line-height:1;font-weight:500;letter-spacing:-.03em">Nuvia</span></a>
+      <p>Приватна клініка сімейної медицини та діагностики у Львові. Лікування, у якому все зрозуміло.</p>
+    </div>
+    <div class="foot-cols">
+      <div class="foot-col"><b>Сайт</b><a href="services.html">Послуги</a><a href="doctors.html">Лікарі</a><a href="prices.html">Ціни</a><a href="about.html">Про клініку</a><a href="blog.html">Блог</a></div>
+      <div class="foot-col"><b>Контакти</b><span>Львів, вул. Прикладна, 12</span><span>Щодня 8:00–20:00</span><span>+38 (032) 000-00-00</span><span>hello@nuvia.example</span></div>
+      <div class="foot-col"><b>Пацієнтам</b><a href="booking.html">Запис онлайн</a><a href="account.html">Кабінет пацієнта</a><a href="index.html#faq">Часті питання</a><a href="privacy.html">Політика конфіденційності</a></div>
+    </div>
+  </div>
+  <div class="foot-bottom"><span>© 2026 Nuvia Clinic. Вигаданий проєкт для портфоліо.</span><span>Ліцензія МОЗ № 000 (умовна)</span></div>
+  <div class="mark" aria-hidden="true">Nuvia</div>
+</footer>
+<script src="data.js"></script>
+<script src="pages.js"></script>
+</body></html>

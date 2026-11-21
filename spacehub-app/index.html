@@ -1,0 +1,1876 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>SpaceHub Prototype</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mulish:wght@300;400;500;600;700;800&display=swap">
+<style>
+/* Layout: on desktop a phone at true 393×852 scale, centred on its own; on a phone the app fills the screen */
+:root{
+  --app-bg:#F4F5F7;
+  --surface:#FFFFFF;
+  --ink:#121316;
+  --muted:#6C6F78;
+  --faint:#A3A6AE;
+  --line:#E3E5EA;
+  --blue:#175CFF;
+  --blue-press:#0F4BDB;
+  --chip:#E9F0FD;
+  --chip-on:#D7E5FF;
+  --yellow:#F2B705;
+  --error-bg:#FDE4E4;
+  --error-line:#F19A9A;
+  --error-ink:#9F1F1F;
+  --stage:#E7E8EC;
+  --font:"Mulish","Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+[hidden]{display:none!important}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{margin:0;background:var(--stage);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.4}
+button,input{font:inherit;color:inherit}
+button{background:none;border:0;padding:0;cursor:pointer}
+:focus-visible{outline:3px solid color-mix(in srgb,var(--blue) 55%,transparent);outline-offset:2px;border-radius:10px}
+svg{display:block}
+
+/* ---------- stage (desktop) ---------- */
+.stage{min-height:100%;display:flex;align-items:center;justify-content:center;gap:56px;padding-block:24px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.panel{width:330px;flex:0 0 auto;display:flex;flex-direction:column;gap:22px}
+.panel .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:15px;letter-spacing:.02em}
+.panel .brand i{width:28px;height:28px;border-radius:9px;background:var(--blue);display:grid;place-items:center}
+.panel h1{font-size:34px;line-height:1.1;margin:0;font-weight:800;letter-spacing:-.02em;text-wrap:balance}
+.panel p{margin:0;color:var(--muted);font-size:15px;line-height:1.55}
+.flow{display:flex;flex-direction:column;gap:2px;border-top:1px solid #D3D5DB;padding-top:14px}
+.flow small{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin:10px 0 4px}
+.flow button{display:flex;justify-content:space-between;align-items:center;text-align:left;padding:7px 10px;border-radius:9px;font-size:14px;font-weight:600;color:#3B3E45}
+.flow button:hover{background:#DCDEE4}
+.flow button[aria-current="true"]{background:var(--ink);color:#fff}
+.flow button span{font-size:12px;font-weight:500;opacity:.6}
+.restart{align-self:flex-start;font-size:14px;font-weight:700;color:var(--blue);padding:6px 0}
+
+.device{position:relative;width:393px;height:852px;flex:0 0 auto;border-radius:56px;background:#0E0F12;padding:11px;box-shadow:0 40px 80px -30px rgba(20,24,40,.45),0 0 0 1px #2A2C33 inset;transform-origin:center center}
+.device::after{content:"";position:absolute;left:50%;top:22px;width:118px;height:34px;transform:translateX(-50%);border-radius:20px;background:#0E0F12;z-index:50;pointer-events:none}
+.phone{position:relative;width:100%;height:100%;border-radius:46px;overflow:hidden;background:var(--app-bg);isolation:isolate}
+
+/* status bar + home indicator */
+.sbar{position:absolute;left:0;right:0;top:0;height:50px;display:flex;justify-content:space-between;align-items:flex-end;padding:0 28px 6px 34px;font-weight:700;font-size:16px;z-index:40;pointer-events:none}
+.sbar .ic{display:flex;gap:6px;align-items:center}
+.home-ind{position:absolute;left:50%;bottom:8px;width:134px;height:5px;border-radius:3px;background:var(--ink);transform:translateX(-50%);z-index:60;pointer-events:none}
+
+/* ---------- screens ---------- */
+.scr{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--app-bg);padding:58px 20px 34px;overflow:hidden;transition:transform .32s cubic-bezier(.3,.7,.2,1),opacity .32s}
+.scr[hidden]{display:none!important}
+.scr.enter-r{transform:translateX(40px);opacity:0}
+.scr.enter-l{transform:translateX(-40px);opacity:0}
+.scroll{overflow-y:auto;overflow-x:hidden;scrollbar-width:none;flex:1;min-height:0;margin:0 -20px;padding:0 20px}
+.scroll::-webkit-scrollbar{display:none}
+.top{height:44px;display:flex;align-items:center;flex:0 0 auto}
+.back{width:40px;height:40px;margin-left:-10px;display:grid;place-items:center;border-radius:12px;color:#7A7D85}
+.back:hover{background:#E8E9ED}
+.prog{display:flex;gap:4px;margin-top:6px;flex:0 0 auto}
+.prog i{flex:1;height:4px;border-radius:2px;background:#E2E4E9;transition:background .3s}
+.prog i.on{background:var(--blue)}
+
+.ob{flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;min-height:0}
+.ob .art{flex:1;display:grid;place-items:center;min-height:0;width:100%}
+.ob .art img{width:250px;max-width:80%;height:auto}
+.ob h2{font-size:31px;font-weight:500;line-height:1.2;margin:0 0 8px;letter-spacing:-.01em;text-wrap:balance}
+.ob p{margin:0;color:var(--muted);font-size:17px;font-weight:300;line-height:1.45;max-width:330px;text-wrap:pretty}
+.dots{display:flex;gap:7px;justify-content:center;margin:34px 0 0}
+.dots i{width:9px;height:9px;border-radius:5px;background:#D3D5DB;transition:width .3s,background .3s}
+.dots i.on{width:18px;background:var(--blue)}
+.fab{width:60px;height:60px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;margin:40px auto 10px;transition:transform .15s,background .15s}
+.fab:hover{background:var(--blue-press)}
+.fab:active{transform:scale(.94)}
+
+.h1{font-size:33px;font-weight:500;letter-spacing:-.015em;line-height:1.15;margin:34px 0 6px}
+.sub{color:var(--muted);font-size:17px;font-weight:300;margin:0}
+.btn{height:56px;border-radius:16px;background:var(--blue);color:#fff;font-weight:500;font-size:17px;width:100%;display:grid;place-items:center;transition:background .15s,transform .1s,opacity .2s}
+.btn:hover{background:var(--blue-press)}
+.btn:active{transform:scale(.985)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn{grid-auto-flow:column;column-gap:4px}
+.row2>.inp:last-child{min-width:0}
+.btn.ghost{background:transparent;border:1.5px solid #DADCE1;color:var(--ink)}
+.btn.ghost:hover{background:#ECEDF0}
+.btn.google{background:#F1F2F4;border:1.5px solid #DFE1E5;color:var(--blue);gap:10px;grid-auto-flow:column;font-weight:600}
+.btn.google:hover{background:#E9EAED}
+.or{text-align:center;color:var(--muted);font-size:17px;margin:14px 0}
+.bottom{margin-top:auto;display:flex;flex-direction:column;gap:14px;padding-top:12px}
+
+/* fields */
+.field{display:flex;flex-direction:column;gap:8px;margin-top:18px}
+.lbl{display:flex;align-items:center;gap:6px;font-size:15px;font-weight:500}
+.lbl b{color:var(--yellow);font-weight:600}
+.lbl .info{color:#B5B8BF}
+.inp{position:relative;display:flex;align-items:center;height:52px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:0 16px;transition:border-color .15s,box-shadow .15s}
+.inp:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 14%,transparent)}
+.inp input{flex:1;min-width:0;border:0;outline:0;background:transparent;font-size:16px;height:100%}
+.inp input::placeholder{color:var(--faint)}
+.inp .eye{color:#A4A7AE;padding:6px;margin-right:-6px}
+.inp.bad{border-color:#E06363}
+.err{color:#C42B2B;font-size:13px;font-weight:600;min-height:0}
+.err:empty{display:none}
+.row2{display:flex;gap:12px}
+.cc{flex:0 0 118px;gap:10px;cursor:pointer}
+.flag{width:22px;height:22px;border-radius:50%;background:linear-gradient(#3B82F6 50%,#FFD43B 50%);flex:0 0 auto}
+.cc span{flex:1;font-size:16px}
+.check{display:flex;align-items:center;gap:12px;font-size:16px;cursor:pointer;user-select:none}
+.check input{position:absolute;opacity:0;pointer-events:none}
+.check i{width:24px;height:24px;border-radius:7px;border:1.5px solid #CBCED4;display:grid;place-items:center;transition:background .15s,border-color .15s;color:#fff}
+.check input:checked+i{background:var(--yellow);border-color:var(--yellow)}
+.check input:not(:checked)+i svg{opacity:0}
+.check input:focus-visible+i{outline:3px solid color-mix(in srgb,var(--blue) 55%,transparent);outline-offset:2px}
+.link{color:var(--blue);font-weight:500;font-size:15px}
+.link:hover{text-decoration:underline}
+.split{display:flex;justify-content:space-between;align-items:center;margin-top:18px}
+.tabs{display:flex;margin-top:30px;border-bottom:1px solid transparent}
+.tabs button{padding:8px 4px 10px;margin-right:30px;font-size:17px;color:#A6A9B0;font-weight:500;border-bottom:3px solid transparent}
+.tabs button[aria-selected="true"]{color:var(--blue);border-color:var(--blue)}
+.foot{text-align:center;font-size:15px;color:var(--muted);margin-top:4px}
+
+.otp{display:flex;gap:20px;justify-content:center;margin-top:120px}
+.otp input{width:60px;height:60px;border-radius:10px;border:1.5px solid #BFC2C8;text-align:center;font-size:20px;background:transparent;outline:0;transition:border-color .15s}
+.otp input:focus{border-color:var(--blue);background:#fff}
+.otp input.full{border-color:#8E9199}
+.resend{display:block;margin:26px auto 0;color:var(--blue);font-size:17px;font-weight:500}
+.resend:disabled{color:var(--faint);cursor:default}
+.hint{text-align:center;color:var(--faint);font-size:13px;margin-top:10px}
+
+.center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.center img{width:230px;height:auto}
+.center h2{font-size:33px;font-weight:500;margin:36px 0 8px}
+.center p{margin:0;color:var(--muted);font-size:17px;font-weight:300;max-width:340px}
+
+/* location */
+.search{display:flex;align-items:center;gap:10px;height:50px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:0 16px;color:#8C8F97;flex:1;min-width:0}
+.search input{flex:1;min-width:0;border:0;outline:0;background:transparent;font-size:16px;color:var(--ink)}
+.search input::placeholder{color:var(--faint)}
+.search:focus-within{border-color:var(--blue)}
+.sugg{position:absolute;left:20px;right:20px;top:0;background:#fff;border-radius:16px;box-shadow:0 14px 34px -12px rgba(20,24,40,.3);overflow:hidden;z-index:5}
+.sugg button{display:flex;gap:12px;align-items:center;width:100%;text-align:left;padding:13px 16px;border-bottom:1px solid #F0F1F3;font-size:15px}
+.sugg button:hover{background:#F5F6F8}
+.sugg small{display:block;color:var(--muted);font-size:13px}
+.mapbox{position:relative;margin:40px -20px 0;flex:1;min-height:0;overflow:hidden}
+.mapbox img.mapimg{width:100%;height:100%;object-fit:cover;object-position:center top}
+.locate{position:absolute;right:16px;bottom:16px;width:46px;height:46px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 6px 18px -6px rgba(0,0,0,.35);color:var(--ink)}
+.locate:hover{background:#F2F3F5}
+.me{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;background:var(--blue);border:4px solid #fff;box-shadow:0 2px 10px rgba(23,92,255,.5)}
+.me::before{content:"";position:absolute;inset:-18px;border-radius:50%;background:rgba(23,92,255,.18);animation:pulse 1.8s ease-out infinite}
+.me-label{position:absolute;transform:translate(-50%,-150%);background:var(--ink);color:#fff;font-size:12px;font-weight:700;padding:5px 9px;border-radius:8px;white-space:nowrap}
+@keyframes pulse{from{transform:scale(.4);opacity:1}to{transform:scale(1.4);opacity:0}}
+
+/* search home & results */
+.hdr{display:grid;grid-template-columns:40px 1fr 40px;align-items:center;height:44px;margin-top:4px}
+.hdr h3{margin:0;text-align:center;font-size:24px;font-weight:400}
+.sbox{display:flex;gap:10px;margin-top:14px;flex:0 0 auto}
+.fbtn{width:46px;height:50px;border-radius:14px;background:var(--surface);display:grid;place-items:center;color:#8C8F97;position:relative;flex:0 0 auto}
+.fbtn:hover{background:#ECEDF0}
+.fbtn em{position:absolute;top:6px;right:6px;width:16px;height:16px;border-radius:50%;background:var(--blue);color:#fff;font-size:10px;font-style:normal;font-weight:800;display:grid;place-items:center}
+.count{color:var(--muted);font-size:14px;margin:10px 0 2px}
+.sect{font-size:18px;font-weight:700;margin:22px 0 12px}
+.hscroll{display:flex;gap:14px;overflow-x:auto;margin:0 -20px;padding:0 20px 6px;scroll-padding-inline:20px;scroll-snap-type:x mandatory;scrollbar-width:none}
+.hscroll::after{content:"";flex:0 0 6px}
+.hscroll::-webkit-scrollbar{display:none}
+.hscroll .card,.hscroll .card + .card{flex:0 0 300px;scroll-snap-align:start;margin-top:0}
+.quick{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.quick button{background:var(--chip);border-radius:20px;padding:8px 14px;font-size:14px;font-weight:600;color:#33363D}
+.quick button:hover{background:var(--chip-on)}
+
+.card{background:var(--surface);border-radius:22px;overflow:hidden;border:1px solid #ECEDF0;text-align:left;width:100%}
+.card + .card{margin-top:16px}
+.ph{position:relative;aspect-ratio:702/399;overflow:hidden;background:#DDE0E5}
+.ph img{width:100%;height:100%;object-fit:cover;transform:scale(1.02)}
+.rate{position:absolute;left:4.4%;top:11.8%;background:#fff;border-radius:9px;padding:4px 9px;display:flex;align-items:center;gap:4px;font-weight:700;font-size:15px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.heart{position:absolute;right:4.4%;top:11%;width:32px;height:32px;border-radius:50%;background:#fff;display:grid;place-items:center;color:#5A5D65;transition:transform .15s}
+.heart:active{transform:scale(.88)}
+.heart[aria-pressed="true"]{color:#F0445A}
+.heart[aria-pressed="true"] svg path{fill:currentColor}
+.ver{position:absolute;right:4%;bottom:8%;background:#fff;border-radius:9px;padding:4px 9px;font-size:13px;font-weight:600;display:flex;gap:4px;align-items:center}
+.pdots{position:absolute;left:50%;bottom:6%;transform:translateX(-50%);display:flex;gap:4px}
+.pdots i{width:5px;height:5px;border-radius:3px;background:rgba(255,255,255,.6)}
+.pdots i:first-child{width:14px;background:#fff}
+.cbody{padding:14px 16px 16px}
+.crow{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.crow b{font-size:18px;font-weight:700;min-width:0}
+.crow span{color:#55585F;font-size:15px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.crow.sm span,.crow.sm em{font-size:15px;color:var(--muted);font-style:normal}
+.crow.sm{margin-top:4px}
+.crow .city{display:flex;align-items:center;gap:4px}
+.tags{display:flex;flex-wrap:wrap;gap:8px 10px;margin-top:12px}
+.tags span{display:flex;align-items:center;gap:6px;background:#F4F5F7;border-radius:12px;padding:4px 9px;font-size:13px;color:#4A4D54}
+
+.toggle{position:absolute;left:50%;bottom:34px;transform:translateX(-50%);background:#F1F0EC;border:1px solid #E1E0DB;border-radius:40px;padding:5px;display:flex;gap:4px;box-shadow:0 8px 24px -10px rgba(0,0,0,.3);z-index:6}
+.toggle button{width:56px;height:46px;border-radius:30px;display:grid;place-items:center;color:#3B3E45}
+.toggle button[aria-pressed="true"]{background:var(--blue);color:#fff}
+.empty{text-align:center;padding:60px 10px;color:var(--muted)}
+.empty b{display:block;color:var(--ink);font-size:18px;margin-bottom:6px}
+
+.mapview{position:relative;margin:8px -20px 0;flex:0 0 auto;aspect-ratio:786/560;overflow:hidden}
+.mapview img.mapimg{object-position:50% 35%}
+.mapview img.mapimg{width:100%;height:100%;object-fit:cover}
+.mini{display:flex;gap:12px;align-items:center;background:var(--surface);border:1px solid #ECEDF0;border-radius:18px;padding:10px;margin-top:12px;text-align:left;width:100%}
+.mini img{width:84px;height:84px;border-radius:12px;object-fit:cover;flex:0 0 auto}
+.mini div{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
+.mini b{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini span{font-size:14px;color:var(--muted);display:flex;align-items:center;gap:4px}
+.pin{position:absolute;transform:translate(-50%,-100%);background:var(--ink);color:#fff;font-size:13px;font-weight:700;padding:6px 9px;border-radius:10px;display:flex;align-items:center;gap:4px;box-shadow:0 6px 14px -6px rgba(0,0,0,.5);transition:transform .15s,background .15s}
+.pin::after{content:"";position:absolute;left:50%;bottom:-5px;margin-left:-5px;border:5px solid transparent;border-top-color:inherit;border-bottom:0}
+.pin{border-color:var(--ink)}
+.pin[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);transform:translate(-50%,-100%) scale(1.08)}
+.maptop{position:absolute;left:0;right:0;top:0;padding:58px 20px 14px;background:linear-gradient(var(--app-bg) 70%,transparent);z-index:4}
+
+/* filter sheet */
+.scrim{position:absolute;inset:0;background:rgba(18,19,22,.35);z-index:20;opacity:0;transition:opacity .25s}
+.scrim.show{opacity:1}
+.sheet{position:absolute;left:0;right:0;bottom:0;top:96px;background:#fff;border-radius:28px 28px 0 0;z-index:21;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .32s cubic-bezier(.3,.7,.2,1)}
+.sheet.show{transform:none}
+.sheet .x{position:absolute;right:16px;top:-46px;width:40px;height:40px;display:grid;place-items:center;color:#1D1F24;border-radius:12px}
+.sheet .x:hover{background:rgba(255,255,255,.5)}
+.sheet .sc{flex:1;overflow-y:auto;padding:22px 20px 10px;scrollbar-width:none}
+.sheet .sc::-webkit-scrollbar{display:none}
+.sheet h4{font-size:28px;font-weight:500;margin:4px 0 6px}
+.sheet h5{font-size:18px;font-weight:500;margin:22px 0 10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--chip);border:1.5px solid transparent;border-radius:24px;padding:8px 16px;font-size:16px;display:flex;align-items:center;gap:6px;transition:background .15s,border-color .15s}
+.chip:hover{background:#DCE7FB}
+.chip[aria-pressed="true"]{background:var(--chip-on);border-color:var(--blue)}
+.chip .st{color:var(--yellow)}
+.active{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.active button{background:var(--chip-on);border:1.5px solid var(--blue);border-radius:20px;padding:5px 10px 5px 12px;font-size:14px;display:flex;align-items:center;gap:6px}
+.banner{background:var(--error-bg);border:1.5px solid var(--error-line);color:var(--error-ink);border-radius:12px;padding:10px 14px;font-size:14px;font-weight:600;margin-bottom:12px}
+.sheet .acts{display:flex;gap:12px;padding:12px 20px 34px;border-top:1px solid #F0F1F3}
+.sheet .acts .btn.ghost{flex:0 0 112px}
+
+.toast{position:absolute;left:50%;top:64px;transform:translate(-50%,-12px);background:var(--ink);color:#fff;font-size:14px;font-weight:600;padding:11px 16px;border-radius:12px;opacity:0;transition:opacity .2s,transform .2s;z-index:70;pointer-events:none;width:max-content;max-width:86%;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* tab bar */
+.tabbar{position:absolute;left:14px;right:14px;bottom:30px;height:64px;background:rgba(255,255,255,.97);border-radius:24px;box-shadow:0 12px 30px -14px rgba(20,24,40,.4);display:flex;align-items:center;justify-content:space-between;padding:6px;z-index:8}
+.tabbar button{height:52px;min-width:52px;border-radius:20px;display:flex;align-items:center;justify-content:center;gap:8px;color:#2A2C31;padding:0 12px;font-size:15px;font-weight:500;transition:background .2s,color .2s}
+.tabbar button:hover{background:#F0F1F4}
+.tabbar button[aria-current="page"]{background:var(--blue);color:#fff;min-width:136px}
+.tabbar .tl{display:none}
+.tabbar button[aria-current="page"] .tl{display:inline}
+.pad-tab{padding-bottom:110px!important}
+
+/* map pins */
+.mpin{position:absolute;transform:translate(-50%,-100%);color:#15161A;width:22px;height:30px;transition:transform .15s,width .15s,height .15s,color .15s}
+.mpin svg{width:100%;height:100%;filter:drop-shadow(0 2px 3px rgba(0,0,0,.25))}
+.mpin:hover{transform:translate(-50%,-100%) scale(1.12)}
+.mpin[aria-pressed="true"]{color:var(--blue);width:34px;height:46px;z-index:2}
+.rsheet{position:relative;z-index:1;background:var(--app-bg);border-radius:26px 26px 0 0;margin:-28px -20px 0;padding:10px 20px 10px;text-align:center;color:var(--muted);font-size:15px}
+.grab{display:block;width:48px;height:5px;border-radius:3px;background:#1C1D22;margin:0 auto 14px}
+.card.hl{box-shadow:0 0 0 2px var(--blue)}
+.empty .btn{margin:20px auto 0;width:auto;padding:0 26px;height:48px;display:inline-grid}
+
+/* full map */
+.scr.flush{padding:0}
+.fullmap{position:absolute;inset:0;overflow:hidden;background:#EDEFEC}
+.fullmap .blurbg{position:absolute;left:-30px;top:-30px;width:calc(100% + 60px);height:calc(100% + 60px);object-fit:cover;filter:blur(16px);opacity:.75;max-width:none}
+.mapwrap{position:absolute;left:50%;top:0;width:118%;transform:translateX(-50%);-webkit-mask-image:linear-gradient(#000 80%,transparent);mask-image:linear-gradient(#000 80%,transparent)}
+.mapwrap img{width:100%;height:auto;display:block;max-width:none}
+.maphead{position:absolute;left:20px;right:20px;top:58px;display:flex;gap:10px;z-index:4}
+.maphead .search,.maphead .fbtn{box-shadow:0 6px 18px -8px rgba(0,0,0,.25)}
+.fcard{position:absolute;left:16px;right:16px;bottom:106px;z-index:5;box-shadow:0 18px 40px -16px rgba(0,0,0,.45);border-radius:22px}
+.fcard .card{margin:0}
+.fcard .cx{position:absolute;right:4.4%;top:11%;width:32px;height:32px;border-radius:50%;background:#fff;display:grid;place-items:center;color:#2A2C31}
+.fcard .heart{right:calc(4.4% + 40px)}
+.maplocate{position:absolute;right:16px;bottom:118px;z-index:4}
+
+/* venue */
+.vtop{height:50px;flex:0 0 auto}
+.hero{position:relative;aspect-ratio:393/240;background:#DDE0E5;overflow:hidden;border-radius:0}
+.hero img,.track img{border-radius:0}
+.track{cursor:grab;user-select:none}
+.track.drag{cursor:grabbing;scroll-snap-type:none}
+.track img{-webkit-user-drag:none;pointer-events:none}
+.harr{position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.88);display:grid;place-items:center;color:#1D1F24;z-index:2;opacity:.9;transition:opacity .2s}
+.harr:disabled{opacity:0;pointer-events:none}
+.harr.l{left:10px}.harr.r{right:10px}
+.hdots i{cursor:pointer}
+.hcount{position:absolute;right:14px;bottom:12px;background:rgba(0,0,0,.45);color:#fff;font-size:12px;font-weight:700;padding:3px 8px;border-radius:10px;font-variant-numeric:tabular-nums}
+.track{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+.track::-webkit-scrollbar{display:none}
+.track img{flex:0 0 100%;width:100%;height:100%;object-fit:cover;scroll-snap-align:start}
+.hb{position:absolute;left:16px;top:16px;width:42px;height:42px;z-index:3;border-radius:50%;display:grid;place-items:center;color:#fff;background:rgba(0,0,0,.18);backdrop-filter:blur(4px)}
+.hv{right:16px!important;top:16px!important;width:42px!important;height:42px!important}
+.hdots{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;gap:5px}
+.hdots i{width:8px;height:8px;border-radius:4px;background:rgba(255,255,255,.65);transition:width .25s}
+.hdots i.on{width:22px;background:#fff}
+.vbody{padding:16px 20px 0}
+.vbody h2{font-size:27px;font-weight:500;margin:0 0 6px;letter-spacing:-.01em}
+.vaddr{display:flex;align-items:center;gap:5px;color:#45484F;font-size:16px}
+.vdist{font-size:13px;color:var(--muted);margin-top:2px}
+.vrate{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:15px}
+.stars{display:inline-flex;gap:1px}
+.stars svg{width:18px;height:18px}
+.stars .off path{fill:#D4D6DB}
+.vrate .link{color:var(--ink);text-decoration:underline;font-size:15px}
+.vbody h3{font-size:18px;font-weight:700;margin:24px 0 10px}
+.vbody .desc{margin:0;font-size:17px;line-height:1.5;color:#45484F}
+.vchips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.vchips span{display:flex;align-items:center;gap:8px;background:#fff;border-radius:22px;padding:9px 14px;font-size:15px}
+.vchips .link{font-size:14px;padding:6px}
+.hist{display:grid;grid-template-columns:96px 1fr;gap:16px;align-items:center}
+.hist .big{text-align:center}
+.hist .big b{display:block;font-size:44px;font-weight:600;line-height:1}
+.hist .big .stars svg{width:15px;height:15px}
+.hist .big small{display:block;font-size:14px;margin-top:4px}
+.bars{display:flex;flex-direction:column;gap:6px}
+.bars div{display:grid;grid-template-columns:14px 1fr;gap:8px;align-items:center;font-size:13px;font-variant-numeric:tabular-nums}
+.bars i{height:8px;border-radius:4px;background:#DADCE1;position:relative;overflow:hidden}
+.bars i b{position:absolute;inset:0 auto 0 0;background:var(--blue);border-radius:4px;transition:width .4s}
+.rfil{display:flex;gap:8px;margin-top:18px;align-items:center}
+.rfil .rc{height:40px;min-width:40px;padding:0 12px;border-radius:12px;background:#fff;font-size:15px;font-weight:500;border:1.5px solid transparent}
+.rfil .rc[aria-pressed="true"]{background:var(--chip-on);border-color:var(--blue)}
+.rfil .sortb{margin-left:auto;height:40px;padding:0 12px;border-radius:12px;background:#fff;border:1px solid var(--line);display:flex;gap:6px;align-items:center;font-size:15px;font-weight:500}
+.rev{padding:18px 0;border-bottom:1px solid #E1E3E8}
+.rev:last-child{border-bottom:0}
+.rh{display:flex;gap:14px;align-items:flex-start}
+.av{width:50px;height:50px;border-radius:50%;flex:0 0 auto;object-fit:cover;border:3px solid #8C78E8;display:grid;place-items:center;font-weight:800;color:#5B46C9;background:#EDE9FF;font-size:18px}
+.rh b{display:block;font-size:16px}
+.rh small{display:block;color:var(--muted);font-size:13px;margin:1px 0 4px}
+.rh .stars svg{width:16px;height:16px}
+.rh em{font-style:normal;font-size:14px;margin-left:4px}
+.rev p{margin:10px 0 0;font-size:15px;line-height:1.5}
+.rev p.clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rev .link{font-size:14px;text-decoration:underline;margin-top:4px}
+.noreviews{color:var(--muted);text-align:center;padding:26px 0}
+
+/* small sheet (review sort) */
+.sheet.small{top:auto}
+.sheet.small .sc{padding:24px 20px 6px;flex:0 0 auto}
+.radio{display:flex;align-items:center;gap:12px;padding:9px 0;font-size:16px;cursor:pointer}
+.radio input{position:absolute;opacity:0;pointer-events:none}
+.radio i{width:22px;height:22px;border-radius:50%;border:1.5px solid #CBCED4;display:grid;place-items:center}
+.radio input:checked+i{border-color:var(--yellow)}
+.radio input:checked+i::after{content:"";width:12px;height:12px;border-radius:50%;background:var(--yellow)}
+.radio input:focus-visible+i{outline:3px solid color-mix(in srgb,var(--blue) 55%,transparent);outline-offset:2px}
+
+/* favourites */
+.ttl{text-align:center;font-size:26px;font-weight:400;margin:10px 0 16px}
+.ftabs{display:flex;gap:22px;overflow-x:auto;scrollbar-width:none;margin:16px -20px 0;padding:0 20px;border-bottom:1px solid #E4E6EA;flex:0 0 auto}
+.ftabs::-webkit-scrollbar{display:none}
+.ftabs button{flex:0 0 auto;padding:6px 0 10px;font-size:16px;color:#8C8F97;border-bottom:2px solid transparent;margin-bottom:-1px}
+.ftabs button[aria-selected="true"]{color:var(--blue);border-color:var(--blue)}
+.ichips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:14px -20px 0;padding:0 20px 2px;flex:0 0 auto}
+.ichips::-webkit-scrollbar{display:none}
+.ichips button{flex:0 0 auto;display:flex;align-items:center;gap:6px;background:#fff;border:1.5px solid #E4E6EA;border-radius:22px;padding:5px 14px 5px 6px;font-size:15px}
+.ichips img{width:28px;height:28px;object-fit:contain}
+.ichips button[aria-pressed="true"]{background:var(--chip-on);border-color:var(--blue)}
+.fcount{color:var(--muted);font-size:14px;margin:12px 0 8px;flex:0 0 auto}
+
+/* header icon button */
+.ibtn{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;color:#3B3E45;position:relative;justify-self:end}
+.ibtn:hover{background:#E8E9ED}
+.ndot{position:absolute;top:7px;right:8px;width:9px;height:9px;border-radius:50%;background:#F0445A;border:2px solid var(--app-bg)}
+.hloc{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:8px;flex:0 0 auto}
+.hplace{display:flex;align-items:flex-start;gap:8px;text-align:left;min-width:0;border-radius:12px;padding:4px 6px 4px 0}
+.hplace:hover{background:#ECEDF0}
+.hplace .hpin svg{width:26px;height:26px;color:#1C1D22}
+.hplace span{min-width:0}
+.hplace small{display:block;color:#7C7F87;font-size:15px}
+.hplace b{display:block;font-weight:500;font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bellc{position:relative;width:52px;height:52px;border-radius:50%;background:#fff;display:grid;place-items:center;flex:0 0 auto;color:#1C1D22}
+.bellc:hover{background:#F3F4F6}
+.bellc em{position:absolute;inset:9px 10px auto auto;min-width:12px;height:14px;border-radius:8px;background:var(--blue);color:#fff;font-size:10px;font-style:normal;font-weight:800;display:grid;place-items:center;padding:0 4px;border:2px solid #fff;box-sizing:content-box}
+.hsearch{height:54px}
+.promos{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:20px;margin:14px -20px 0;padding:0 20px 2px;scrollbar-width:none;cursor:grab}
+.promos::-webkit-scrollbar{display:none}
+.promos.drag{scroll-snap-type:none;cursor:grabbing}
+.promo{position:relative;flex:0 0 100%;aspect-ratio:352/129;scroll-snap-align:start;display:flex;text-align:left;border-radius:22px;overflow:hidden;background:#D7D2C8;user-select:none}
+.promo img{position:absolute;right:0;top:0;height:100%;width:34%;object-fit:cover;pointer-events:none;-webkit-user-drag:none}
+.promo .pt{position:relative;z-index:1;width:76%;background:#fff;border-radius:22px;padding:9px 10px 10px 14px;display:flex;flex-direction:column;align-items:flex-start;gap:1px;box-shadow:6px 0 16px -10px rgba(0,0,0,.22);min-width:0}
+.ppill{border:1px solid #9A9DA4;border-radius:12px;padding:1px 7px;font-size:11px;margin-bottom:3px;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.promo b{font-size:19px;font-weight:500;letter-spacing:-.01em;line-height:1.15;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.promo small{font-size:12px;color:#2A2C31;line-height:1.3;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.phrs{display:flex;flex:0 0 auto;margin-top:auto;border-radius:14px;overflow:hidden;font-weight:600;font-size:14px;font-variant-numeric:tabular-nums}
+.phrs span{padding:4px 10px;line-height:1.1;background:linear-gradient(90deg,#141414,#5E5348);color:#fff;display:flex;align-items:center;gap:5px}
+.phrs span svg{width:14px;height:14px}
+.phrs .po{background:#141414;color:#F2B705}
+.prdots{display:flex;justify-content:center;gap:6px;margin-top:10px}
+.prdots button{width:7px;height:7px;border-radius:4px;background:#D3D5DB;padding:0;transition:width .25s,background .25s}
+.prdots button[aria-current="true"]{width:18px;background:var(--blue)}
+#promoSheet{max-height:calc(100% - 70px)}
+#promoSheet .sc{flex:1 1 auto;min-height:0;overflow-y:auto;padding-top:18px}
+.primg{width:100%;aspect-ratio:16/8;object-fit:cover;border-radius:18px;display:block;margin-bottom:14px}
+#promoSheet h4{margin:6px 0 4px;font-size:24px}
+.prwhen{display:inline-flex;align-items:center;gap:6px;background:#F1F2F5;border-radius:10px;padding:5px 10px;font-size:13px;font-weight:600;margin-top:10px}
+.prdesc{margin:6px 0 0;font-size:15px;line-height:1.5;color:#45484F}
+.prcond{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.prcond li{display:flex;gap:10px;font-size:15px;line-height:1.4}
+.prcond li svg{flex:0 0 auto;color:#1A8F4C;margin-top:2px}
+.bellbtn{width:56px;height:56px;flex:0 0 56px;border-radius:16px;border:1.5px solid #DADCE1;display:grid;place-items:center;color:#2A2C31;transition:background .15s,border-color .15s,color .15s}
+.bellbtn:hover{background:#F1F2F4}
+.bellbtn[aria-pressed="true"]{background:#FFF5DA;border-color:#F2B705;color:#A87A00}
+#promoSheet .acts .btn{flex:1}
+.promo:hover .pt{background:#FBFBFC}
+.promo:focus-visible{outline-offset:-3px}
+.hcnt{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:15px;margin:10px 0 0}
+#homeScroll .ftabs{margin-top:20px}
+.geo-warn{display:flex;gap:10px;align-items:center;background:#FFF5DA;border:1px solid #F2D27A;color:#6A4B00;border-radius:14px;padding:10px 12px;font-size:14px;margin-top:12px}
+.geo-warn .link{margin-left:auto;font-size:14px;white-space:nowrap}
+
+/* venue additions */
+.vopen{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--muted);margin-top:4px}
+.vopen b{color:#1A8F4C;font-weight:700}
+.vopen b.closed{color:#C42B2B}
+.vbook{display:flex;align-items:center;gap:14px;background:#fff;border-radius:18px;padding:12px 12px 12px 16px;margin-top:16px;border:1px solid #ECEDF0}
+.vbook div{flex:1;min-width:0}
+.vbook small{display:block;color:var(--muted);font-size:13px}
+.vbook b{font-size:18px;font-weight:700}
+.vbook .btn{width:auto;padding:0 22px;height:48px;flex:0 0 auto}
+.rfil{flex-wrap:nowrap}
+.rfil .rcs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0;padding:2px}
+.rfil .rcs::-webkit-scrollbar{display:none}
+.rfil .rc{flex:0 0 auto;display:flex;align-items:center;gap:4px;white-space:nowrap}
+.rfil .rc svg{width:14px;height:14px}
+.rfil .rc small{color:var(--muted);font-size:12px}
+.rfil .sortb{flex:0 0 auto}
+.bars button{display:grid;grid-template-columns:14px 1fr 22px;gap:8px;align-items:center;font-size:13px;font-variant-numeric:tabular-nums;width:100%;border-radius:6px;padding:1px 2px}
+.bars button:hover{background:#E9EBEF}
+.bars button[aria-pressed="true"] span{color:var(--blue);font-weight:800}
+.bars button em{font-style:normal;color:var(--muted);text-align:right}
+.revtop{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.revtop h3{margin:24px 0 10px}
+.writebtn{margin-top:16px}
+.rphotos{display:flex;gap:8px;margin-top:10px}
+.rphotos img{width:64px;height:64px;border-radius:10px;object-fit:cover}
+.mine{display:inline-block;background:var(--chip-on);color:var(--blue);font-size:11px;font-weight:800;padding:2px 7px;border-radius:8px;margin-left:6px;vertical-align:2px}
+.loadmore{display:flex;align-items:center;justify-content:center;gap:10px}
+.spin{width:18px;height:18px;border-radius:50%;border:2.5px solid #C9CCD3;border-top-color:var(--blue);animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* lists, rows, switches */
+.group{margin-top:22px}
+.group>small{display:block;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin:0 4px 8px}
+.list{background:#fff;border-radius:18px;overflow:hidden;border:1px solid #ECEDF0}
+.row{display:flex;align-items:center;gap:12px;padding:12px 14px;width:100%;text-align:left;min-height:58px}
+.row+.row{border-top:1px solid #F0F1F3}
+button.row:hover,label.row:hover{background:#F8F9FA}
+.row .ri{width:36px;height:36px;border-radius:11px;background:#EEF3FF;color:var(--blue);display:grid;place-items:center;flex:0 0 auto}
+.row .ri.red{background:#FDECEC;color:#D33}
+.row .rt{flex:1;min-width:0}
+.row .rt b{display:block;font-size:16px;font-weight:600}
+.row .rt small{display:block;font-size:13px;color:var(--muted);margin-top:2px;line-height:1.35}
+.row .rv{color:var(--muted);font-size:14px;white-space:nowrap}
+.row .chev{color:#B4B7BE;flex:0 0 auto}
+.row .badge{background:#F0445A;color:#fff;font-size:12px;font-weight:800;min-width:20px;height:20px;border-radius:10px;display:grid;place-items:center;padding:0 6px}
+.sw{position:relative;width:50px;height:30px;flex:0 0 auto}
+.sw input{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;cursor:pointer;z-index:1}
+.sw i{position:absolute;inset:0;border-radius:15px;background:#D4D6DB;transition:background .2s}
+.sw i::after{content:"";position:absolute;left:3px;top:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.sw input:checked+i{background:var(--blue)}
+.sw input:checked+i::after{transform:translateX(20px)}
+.sw input:focus-visible+i{outline:3px solid color-mix(in srgb,var(--blue) 55%,transparent);outline-offset:2px}
+.danger{color:#C42B2B!important}
+.btn.ghost.danger{border-color:#F1C4C4}
+
+/* profile */
+.pcard{display:flex;align-items:center;gap:14px;background:#fff;border-radius:20px;padding:16px;border:1px solid #ECEDF0;margin-top:8px}
+.pav{width:64px;height:64px;border-radius:50%;object-fit:cover;flex:0 0 auto;display:grid;place-items:center;background:linear-gradient(135deg,#8C78E8,#175CFF);color:#fff;font-size:26px;font-weight:700}
+.pcard div{flex:1;min-width:0}
+.pcard b{display:block;font-size:19px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pcard span{display:block;color:var(--muted);font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.stats button{background:#fff;border:1px solid #ECEDF0;border-radius:16px;padding:12px 8px;text-align:center}
+.stats button:hover{background:#F8F9FA}
+.stats b{display:block;font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+.stats span{font-size:13px;color:var(--muted)}
+.appver{text-align:center;color:var(--faint);font-size:13px;margin:18px 0 0}
+
+/* edit profile */
+.avedit{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:10px}
+.avedit .pav{width:96px;height:96px;font-size:38px}
+.avedit label{cursor:pointer}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* notifications */
+.nitem{display:flex;gap:12px;padding:14px;background:#fff;border-radius:18px;border:1px solid #ECEDF0;width:100%;text-align:left;position:relative}
+.nitem+.nitem{margin-top:10px}
+.nitem.unread{background:#F3F7FF;border-color:#D7E5FF}
+.nitem .ri{width:40px;height:40px;border-radius:12px;background:#EEF3FF;color:var(--blue);display:grid;place-items:center;flex:0 0 auto}
+.nitem div{flex:1;min-width:0}
+.nitem b{display:block;font-size:15px;font-weight:700;padding-right:14px}
+.nitem p{margin:3px 0 0;font-size:14px;color:#45484F;line-height:1.4}
+.nitem small{display:block;font-size:12px;color:var(--faint);margin-top:6px}
+.nitem .ud{position:absolute;top:16px;right:14px;width:9px;height:9px;border-radius:50%;background:var(--blue)}
+.seg{display:flex;background:#E7E9EE;border-radius:14px;padding:4px;gap:4px;flex:0 0 auto}
+.seg button{flex:1;height:38px;border-radius:11px;font-size:15px;font-weight:600;color:#55585F}
+.seg button[aria-selected="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.hdr{grid-template-columns:1fr auto 1fr!important}
+.hdr>:first-child{justify-self:start}
+.hdr>:last-child{justify-self:end}
+.hdr .link{font-size:14px;white-space:nowrap}
+
+/* booking */
+.vmini{display:flex;gap:12px;align-items:center;background:#fff;border-radius:18px;padding:10px;border:1px solid #ECEDF0;margin-top:8px}
+.vmini img{width:64px;height:64px;border-radius:12px;object-fit:cover;flex:0 0 auto}
+.vmini div{flex:1;min-width:0}
+.vmini b{display:block;font-size:16px;font-weight:700}
+.vmini span{display:block;font-size:13px;color:var(--muted)}
+.bsec{margin-top:20px}
+.bsec h5{font-size:16px;font-weight:700;margin:0 0 10px;display:flex;justify-content:space-between;align-items:baseline}
+.bsec h5 small{font-weight:500;color:var(--muted);font-size:13px}
+.kinds{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.kind{background:#fff;border:1.5px solid #E4E6EA;border-radius:16px;padding:12px;text-align:left;display:flex;flex-direction:column;gap:6px}
+.kind[aria-pressed="true"]{border-color:var(--blue);background:#F3F7FF}
+.kind .ri{width:34px;height:34px;border-radius:10px;background:#EEF3FF;color:var(--blue);display:grid;place-items:center}
+.kind b{font-size:15px}
+.kind small{font-size:13px;color:var(--muted)}
+.days{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -20px;padding:2px 20px}
+.days::-webkit-scrollbar{display:none}
+.day{flex:0 0 58px;height:70px;border-radius:16px;background:#fff;border:1.5px solid #E4E6EA;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.day small{font-size:12px;color:var(--muted);text-transform:capitalize}
+.day b{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+.day[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
+.day[aria-pressed="true"] small{color:rgba(255,255,255,.8)}
+.times{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.time{height:42px;border-radius:12px;background:#fff;border:1.5px solid #E4E6EA;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
+.time[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
+.time:disabled{background:#EEEFF2;color:#B6B9C0;border-color:transparent;text-decoration:line-through;cursor:not-allowed}
+.time.inr{background:#E3ECFF;border-color:#B9CEFF}
+.stepper{display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid #ECEDF0;border-radius:16px;padding:8px 8px 8px 16px}
+.stepper span{font-size:15px}
+.stepper div{display:flex;align-items:center;gap:14px}
+.stepper button{width:38px;height:38px;border-radius:12px;background:#F1F2F5;display:grid;place-items:center}
+.stepper button:disabled{opacity:.35;cursor:not-allowed}
+.stepper b{min-width:24px;text-align:center;font-size:17px;font-variant-numeric:tabular-nums}
+.pays{display:flex;flex-direction:column;gap:8px}
+.pays .radio{background:#fff;border:1.5px solid #E4E6EA;border-radius:14px;padding:12px 14px}
+.pays .radio:has(input:checked){border-color:var(--blue);background:#F3F7FF}
+.ta{width:100%;min-height:96px;border:1px solid var(--line);border-radius:16px;padding:12px 14px;font:inherit;font-size:15px;background:#fff;resize:vertical;outline:0}
+.ta:focus{border-color:var(--blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 14%,transparent)}
+.cbar{display:flex;align-items:center;gap:14px;padding-top:12px;margin-top:auto;border-top:1px solid #E6E8EC;flex:0 0 auto}
+.cbar div{flex:1;min-width:0}
+.cbar small{display:block;font-size:13px;color:var(--muted)}
+.cbar b{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+.cbar .btn{width:auto;flex:0 0 auto;padding:0 26px}
+.okicon{width:96px;height:96px;border-radius:50%;background:#E5F6EC;color:#1A8F4C;display:grid;place-items:center;margin:20px auto 0}
+.okicon svg{width:52px;height:52px}
+.ticket{background:#fff;border-radius:20px;border:1px solid #ECEDF0;padding:6px 16px;margin-top:22px}
+.ticket div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;font-size:15px}
+.ticket div+div{border-top:1px dashed #E1E3E8}
+.ticket span{color:var(--muted)}
+.ticket b{text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
+.bkcard{background:#fff;border-radius:18px;border:1px solid #ECEDF0;padding:12px;margin-top:12px}
+.bkcard .top2{display:flex;gap:12px;align-items:center}
+.bkcard img{width:60px;height:60px;border-radius:12px;object-fit:cover}
+.bkcard .top2 div{flex:1;min-width:0}
+.bkcard b{display:block;font-size:16px}
+.bkcard .top2 span{display:block;font-size:13px;color:var(--muted)}
+.pill{display:inline-block;font-size:12px;font-weight:800;padding:3px 9px;border-radius:9px}
+.pill.up{background:#E3ECFF;color:var(--blue)}
+.pill.past{background:#E5F6EC;color:#1A7A42}
+.pill.cancel{background:#F1F2F4;color:#6C6F78}
+.bkacts{display:flex;gap:8px;margin-top:12px}
+.bkacts .btn{height:42px;font-size:15px;border-radius:12px}
+
+/* write review */
+.bigstars{display:flex;justify-content:center;gap:8px;margin-top:8px}
+.bigstars button{width:46px;height:46px;display:grid;place-items:center;border-radius:12px;transition:transform .12s}
+.bigstars button:active{transform:scale(.9)}
+.bigstars svg{width:40px;height:40px}
+.bigstars button:not(.on) svg path{fill:#D4D6DB}
+.rlabel{text-align:center;font-weight:700;min-height:22px;margin-top:6px}
+.tchips{display:flex;flex-wrap:wrap;gap:8px}
+.counter{text-align:right;font-size:12px;color:var(--faint);margin-top:4px;font-variant-numeric:tabular-nums}
+.photos{display:flex;gap:8px;flex-wrap:wrap}
+.photos .ph2{position:relative;width:76px;height:76px}
+.photos .ph2 img{width:100%;height:100%;object-fit:cover;border-radius:12px}
+.photos .ph2 button{position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center}
+.addph{width:76px;height:76px;border-radius:12px;border:1.5px dashed #BFC2C8;display:grid;place-items:center;color:var(--muted);cursor:pointer;background:#fff}
+.addph:hover{border-color:var(--blue);color:var(--blue)}
+
+.bdtop{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.bdnum{color:var(--muted);font-size:14px}
+.bdnum b{color:var(--ink);font-variant-numeric:tabular-nums}
+.qrcard{background:#fff;border-radius:22px;border:1px solid #ECEDF0;padding:20px;margin-top:12px;text-align:center}
+.qr{width:200px;height:200px;margin:0 auto;display:grid;place-items:center}
+.qr img,.qr canvas{width:200px!important;height:200px!important;image-rendering:pixelated}
+.qrcard p{margin:12px 0 0;color:var(--muted);font-size:14px}
+.bdmap{position:relative;display:block;height:170px;border-radius:18px;overflow:hidden;border:1px solid #ECEDF0}
+.bdmap img{width:100%;height:100%;object-fit:cover;object-position:50% 40%}
+.bdpin{position:absolute;transform:translate(-50%,-100%);filter:drop-shadow(0 3px 4px rgba(0,0,0,.3))}
+.bdgo{position:absolute;left:10px;bottom:10px;background:#fff;border-radius:10px;padding:6px 10px;font-size:13px;font-weight:700;color:var(--blue);box-shadow:0 4px 12px -6px rgba(0,0,0,.35)}
+.bdmap:hover .bdgo{background:#F3F7FF}
+.bdaddr{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:10px;font-size:15px}
+#scrim3{z-index:30}
+#gSheet{z-index:31}
+/* faq */
+details.faq{background:#fff;border:1px solid #ECEDF0;border-radius:16px;padding:0 16px}
+details.faq+details.faq{margin-top:8px}
+details.faq summary{list-style:none;cursor:pointer;padding:14px 0;font-weight:600;display:flex;justify-content:space-between;gap:10px}
+details.faq summary::-webkit-details-marker{display:none}
+details.faq summary::after{content:"+";font-size:20px;color:var(--muted);line-height:1}
+details.faq[open] summary::after{content:"–"}
+details.faq p{margin:0 0 14px;color:#45484F;font-size:15px;line-height:1.5}
+
+/* generic sheet */
+.gs .sc{padding:26px 20px 6px}
+.gs p{margin:6px 0 0;color:var(--muted);font-size:15px;line-height:1.5}
+.btn.red{background:#D33}
+.btn.red:hover{background:#B82626}
+.meter{height:6px;border-radius:3px;background:#E4E6EA;overflow:hidden;margin-top:8px}
+.meter i{display:block;height:100%;width:0;transition:width .25s,background .25s}
+.mhint{font-size:12px;color:var(--muted);margin-top:4px}
+
+/* ---------- phone-sized viewports: the app is the whole screen ---------- */
+@media (max-width:720px){
+  .stage{padding:0;display:block;height:100%}
+  .panel{display:none}
+  .device{width:100%;height:100%;border-radius:0;padding:0;box-shadow:none;transform:none!important}
+  .device::after{display:none}
+  .phone{border-radius:0}
+  .sbar,.home-ind{display:none}
+  .scr{padding-top:max(16px,env(safe-area-inset-top,0px));padding-bottom:max(20px,env(safe-area-inset-bottom,0px));padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+  .maptop{padding-top:max(16px,env(safe-area-inset-top,0px))}
+  .sheet{top:72px}
+  .sheet.small{top:auto}
+  .vtop{display:none}
+  .maphead{top:max(16px,env(safe-area-inset-top,0px))}
+  .tabbar{bottom:max(14px,env(safe-area-inset-bottom,0px))}
+  .fcard{bottom:calc(max(14px,env(safe-area-inset-bottom,0px)) + 76px)}
+  .maplocate{bottom:calc(max(14px,env(safe-area-inset-bottom,0px)) + 88px)}
+}
+@media (prefers-reduced-motion:reduce){*,*::before{transition:none!important;animation:none!important}}
+</style>
+
+<div class="stage">
+  <div class="device" id="device">
+    <div class="phone" id="phone">
+      <div class="sbar"><span>9:41</span><span class="ic">
+        <svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="#121316"/><rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#121316"/><rect x="10" y="3" width="3" height="9" rx="1" fill="#121316"/><rect x="15" y="0" width="3" height="12" rx="1" fill="#121316"/></svg>
+        <svg width="17" height="12" viewBox="0 0 17 12"><path d="M8.5 2.3c2.4 0 4.6.9 6.3 2.5l1.3-1.3A10.6 10.6 0 0 0 8.5.4 10.6 10.6 0 0 0 .9 3.5l1.3 1.3A8.9 8.9 0 0 1 8.5 2.3zm0 3.6c1.4 0 2.7.5 3.7 1.5l1.3-1.3a7 7 0 0 0-10 0l1.3 1.3c1-1 2.3-1.5 3.7-1.5zm0 3.6c.5 0 .9.2 1.2.5L8.5 11.2 7.3 10c.3-.3.7-.5 1.2-.5z" fill="#121316"/></svg>
+        <svg width="27" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" stroke="#121316" opacity=".4" fill="none"/><rect x="2" y="2" width="20" height="9" rx="2" fill="#121316"/><path d="M25 4.5v4c.8-.3 1.4-1.1 1.4-2s-.6-1.7-1.4-2z" fill="#121316" opacity=".45"/></svg>
+      </span></div>
+
+      <!-- onboarding -->
+      <section class="scr" data-s="onboarding" aria-label="Онбординг">
+        <div class="top"><button class="back" type="button" data-back aria-label="Назад" id="obBack"></button></div>
+        <div class="prog" data-prog="1"></div>
+        <div class="ob" id="ob">
+          <div class="art"><img id="obImg" src="img/ob1.webp" alt="" width="490" height="400"></div>
+          <h2 id="obTitle"></h2>
+          <p id="obText"></p>
+          <div class="dots" id="obDots"><i></i><i></i><i></i></div>
+          <button class="fab" type="button" id="obNext" aria-label="Далі"></button>
+        </div>
+      </section>
+
+      <!-- location -->
+      <section class="scr" data-s="location" aria-label="Місцезнаходження" hidden>
+        <div class="top"><button class="back" type="button" data-back aria-label="Назад"></button></div>
+        <div class="prog" data-prog="4"></div>
+        <h2 class="h1">Місцезнаходження</h2>
+        <p class="sub">Визначте своє місцезнаходження або оберіть на карті</p>
+        <div style="position:relative;margin-top:30px">
+          <label class="search"><span data-i="search"></span><input id="locInput" type="text" placeholder="Пошук локації" autocomplete="off"></label>
+          <div style="position:relative"><div class="sugg" id="locSugg" hidden></div></div>
+        </div>
+        <div class="mapbox" id="locMap">
+          <img class="mapimg" src="img/mapc.jpg" alt="Мапа Львова" width="786" height="897">
+          <button class="locate" type="button" id="locate" aria-label="Визначити моє місцезнаходження"><span data-i="locate"></span></button>
+        </div>
+        <div style="padding-top:20px"><button class="btn" type="button" data-go="welcome">Продовжити</button></div>
+      </section>
+
+      <!-- welcome -->
+      <section class="scr" data-s="welcome" aria-label="Вітання" hidden>
+        <div class="top"><button class="back" type="button" data-back aria-label="Назад"></button></div>
+        <div class="prog" data-prog="5"></div>
+        <div class="center" style="justify-content:flex-start;padding-top:56px">
+          <img src="img/welcome.webp" alt="" width="475" height="360" style="width:240px">
+          <h2 style="margin-top:40px">Вітаємо в SpaceHub</h2>
+          <p>Твій помічник у пошуку зручних місць для роботи, навчання та пауз на каву.</p>
+        </div>
+        <div class="bottom"><button class="btn" type="button" data-go="login">Вхід</button><button class="btn ghost" type="button" data-go="signup">Створити акаунт</button></div>
+      </section>
+
+      <!-- login -->
+      <section class="scr" data-s="login" aria-label="Вхід" hidden>
+        <div class="top"><button class="back" type="button" data-back aria-label="Назад"></button></div>
+        <div class="scroll">
+          <h2 class="h1" style="margin-top:44px">Вхід</h2>
+          <p class="sub">Вітаємо знову в застосунку</p>
+          <div class="tabs" role="tablist">
+            <button type="button" role="tab" aria-selected="true" data-tab="email">Електронна пошта</button>
+            <button type="button" role="tab" aria-selected="false" data-tab="phone">Телефон</button>
+          </div>
+          <form id="loginForm" novalidate>
+            <div data-pane="email">
+              <div class="field"><label class="lbl" for="lEmail">Електронна пошта<b>*</b></label>
+                <div class="inp"><input id="lEmail" type="email" value="dana@spacehub.com" autocomplete="email"></div><div class="err" id="lEmailErr"></div></div>
+            </div>
+            <div data-pane="phone" hidden>
+              <div class="field"><label class="lbl" for="lPhone">Телефон<b>*</b></label>
+                <div class="row2"><div class="inp cc"><i class="flag"></i><span>+380</span><span data-i="down" style="flex:0;color:#9A9DA4"></span></div>
+                <div class="inp" style="flex:1"><input id="lPhone" type="tel" inputmode="numeric" value="98 345 67 89" placeholder="98 345 67 89" autocomplete="tel-national"></div></div><div class="err" id="lPhoneErr"></div></div>
+            </div>
+            <div class="field"><label class="lbl" for="lPass">Пароль<b>*</b></label>
+              <div class="inp"><input id="lPass" type="password" value="spacehub23567" autocomplete="current-password"><button class="eye" type="button" data-eye="lPass" aria-label="Показати пароль"></button></div><div class="err" id="lPassErr"></div></div>
+            <div class="split"><label class="check"><input type="checkbox" id="lRemember" checked><i><span data-i="tick"></span></i>Запам'ятати мене</label><button class="link" type="button" data-toast="Лист для відновлення пароля надіслано">Забули пароль?</button></div>
+          </form>
+        </div>
+        <div class="bottom">
+          <button class="btn" type="submit" form="loginForm">Вхід</button>
+          <div class="or" style="margin:0">або увійти з</div>
+          <button class="btn google" type="button" data-enter><span data-i="google"></span>Продовжити з Google</button>
+          <div class="foot">Немає акаунта? <button class="link" type="button" data-go="signup">Зареєструватися</button></div>
+        </div>
+      </section>
+
+      <!-- sms -->
+      <section class="scr" data-s="sms" aria-label="Код з SMS" hidden>
+        <div class="top"><button class="back" type="button" data-back aria-label="Назад"></button></div>
+        <h2 class="h1" style="margin-top:44px">Введіть код з SMS</h2>
+        <p class="sub">Введіть код, який ми щойно надіслали на номер <span id="smsPhone">+380 98 345 67 89</span>.</p>
+        <div class="otp" id="otp" role="group" aria-label="Код із 4 цифр">
+          <input inputmode="numeric" maxlength="1" aria-label="Цифра 1" id="o1"><input inputmode="numeric" maxlength="1" aria-label="Цифра 2" id="o2"><input inputmode="numeric" maxlength="1" aria-label="Цифра 3" id="o3"><input inputmode="numeric" maxlength="1" aria-label="Цифра 4" id="o4">
+        </div>
+        <button class="resend" type="button" id="resend">Надіслати знову</button>
+        <p class="hint">Для демо підійде будь-який код</p>
+        <div class="bottom"><button class="btn" type="button" id="smsGo" disabled>Вхід</button></div>
+      </section>
+
+      <!-- signup -->
+      <section class="scr" data-s="signup" aria-label="Створити акаунт" hidden>
+        <div class="top"><button class="back" type="button" data-back aria-label="Назад"></button></div>
+        <div class="scroll">
+          <h2 class="h1" style="margin-top:30px">Створити акаунт</h2>
+          <form id="suForm" novalidate>
+            <div class="field"><label class="lbl" for="sName">Ім'я<b>*</b></label><div class="inp"><input id="sName" type="text" value="Дана" autocomplete="given-name"></div><div class="err" id="sNameErr"></div></div>
+            <div class="field"><label class="lbl" for="sPhone">Телефон<b>*</b></label>
+              <div class="row2"><div class="inp cc"><i class="flag"></i><span>+380</span><span data-i="down" style="flex:0;color:#9A9DA4"></span></div><div class="inp" style="flex:1"><input id="sPhone" type="tel" inputmode="numeric" value="45 478 67 89" autocomplete="tel-national"></div></div><div class="err" id="sPhoneErr"></div></div>
+            <div class="field"><label class="lbl" for="sEmail">Електронна пошта<b>*</b></label><div class="inp"><input id="sEmail" type="email" value="dana@spacehub.com" autocomplete="email"></div><div class="err" id="sEmailErr"></div></div>
+            <div class="field"><label class="lbl" for="sPass">Пароль<b>*</b></label><div class="inp"><input id="sPass" type="password" value="spacehub2026" autocomplete="new-password"><button class="eye" type="button" data-eye="sPass" aria-label="Показати пароль"></button></div><div class="err" id="sPassErr"></div></div>
+            <div class="split"><label class="check"><input type="checkbox" id="sRemember" checked><i><span data-i="tick"></span></i>Запам'ятати мене</label></div>
+          </form>
+        </div>
+        <div class="bottom">
+          <button class="btn" type="submit" form="suForm">Зареєструватися</button>
+          <div class="or" style="margin:0">або</div>
+          <button class="btn google" type="button" data-enter><span data-i="google"></span>Продовжити з Google</button>
+        </div>
+      </section>
+
+      <!-- confirm email -->
+      <section class="scr" data-s="confirm" aria-label="Підтвердження пошти" hidden>
+        <div class="top"><button class="back" type="button" data-back aria-label="Назад"></button></div>
+        <div class="center" style="justify-content:flex-start;padding-top:90px">
+          <img src="img/mail.webp" alt="" width="460" height="365">
+          <h2>Вітаємо</h2>
+          <p>Ми надіслали лист для підтвердження на <b id="cfEmail" style="font-weight:600;color:var(--ink)">вашу пошту</b>. Перевірте пошту й перейдіть за посиланням у листі.</p>
+        </div>
+        <div class="bottom"><button class="btn" type="button" data-go="login">Вхід</button></div>
+      </section>
+
+      <!-- search home -->
+      <section class="scr" data-s="search" aria-label="Пошук" hidden>
+        <div class="hloc">
+          <button type="button" class="hplace" id="hPlace"><span class="hpin" data-i="pin"></span><span><small>Шукати місця поблизу</small><b id="hDistrict">Львів, Шевченківський р.</b></span></button>
+          <button class="bellc" type="button" data-go="notifications" aria-label="Сповіщення"><span data-i="bell"></span><em id="hBadge" hidden></em></button>
+        </div>
+        <div class="geo-warn" id="geoWarn" hidden><span data-i="pin"></span>Геолокацію вимкнено, тому «поруч» рахуємо від центру міста.<button class="link" type="button" data-go="permissions">Увімкнути</button></div>
+        <form class="sbox" id="homeForm" role="search">
+          <label class="search hsearch"><span data-i="search"></span><input id="homeQ" type="search" placeholder="Пошук" autocomplete="off" enterkeyhint="search"></label>
+        </form>
+        <div class="scroll pad-tab" id="homeScroll">
+          <div class="promos" id="promos" role="region" aria-roledescription="карусель" aria-label="Новини та акції закладів"></div>
+          <div class="prdots" id="promoDots"></div>
+          <div class="ftabs" role="tablist" id="homeTabs"></div>
+          <div class="ichips" id="homeChips"></div>
+          <div class="hcnt"><span id="homeCount"></span><button class="ibtn" type="button" data-filter aria-label="Фільтр" style="width:36px;height:36px"><span data-i="sliders"></span></button></div>
+          <div id="homeSects"></div>
+        </div>
+        <nav class="tabbar" data-tabbar="home" aria-label="Головне меню"></nav>
+      </section>
+
+      <!-- results -->
+      <section class="scr" data-s="results" aria-label="Результати пошуку" hidden>
+        <div class="hdr"><button class="back" type="button" data-back aria-label="Назад"></button><h3>Пошук</h3><span></span></div>
+        <form class="sbox" id="resForm" role="search">
+          <label class="search"><span data-i="search"></span><input id="resQ" type="search" placeholder="Пошук" autocomplete="off" enterkeyhint="search"></label>
+          <button class="fbtn" type="button" data-filter aria-label="Фільтр"><span data-i="sliders"></span><em id="fcount" hidden></em></button>
+        </form>
+        <div class="count" id="resCount"></div>
+        <div class="scroll" id="resScroll" style="padding-bottom:110px">
+          <div class="mapview" id="resMap" hidden>
+            <img class="mapimg" src="img/mapc.jpg" alt="Мапа з закладами" width="786" height="897">
+            <div id="pins"></div>
+          </div>
+          <div class="rsheet" id="rsHead" hidden><i class="grab"></i><span id="rsCount"></span></div>
+          <div id="resList" style="padding-top:6px"></div>
+        </div>
+        <div class="toggle" role="group" aria-label="Вигляд"><button type="button" aria-pressed="true" data-view="list" aria-label="Список"><span data-i="list"></span></button><button type="button" aria-pressed="false" data-view="map" aria-label="Мапа"><span data-i="map"></span></button></div>
+      </section>
+
+      <!-- full map tab -->
+      <section class="scr flush" data-s="map" aria-label="Мапа" hidden>
+        <div class="fullmap"><img class="blurbg" src="img/mapc.jpg" alt=""><div class="mapwrap"><img src="img/mapc.jpg" alt="Мапа закладів Львова" width="786" height="897"><div id="fpins"></div></div></div>
+        <form class="maphead" id="mapForm" role="search">
+          <label class="search"><span data-i="search"></span><input id="mapQ" type="search" placeholder="Пошук" autocomplete="off" enterkeyhint="search"></label>
+          <button class="fbtn" type="button" data-filter aria-label="Фільтр"><span data-i="sliders"></span><em id="fcount2" hidden></em></button>
+        </form>
+        <button class="locate maplocate" type="button" id="mapLocate" aria-label="Моє місцезнаходження"><span data-i="locate"></span></button>
+        <div class="fcard" id="fcard" hidden></div>
+        <nav class="tabbar" data-tabbar="map" aria-label="Головне меню"></nav>
+      </section>
+
+      <!-- venue -->
+      <section class="scr flush" data-s="venue" aria-label="Сторінка закладу" hidden>
+        <div class="vtop"></div>
+        <div class="scroll pad-tab" id="vScroll" style="margin:0;padding-left:0;padding-right:0">
+          <div class="hero">
+            <div class="track" id="vTrack"></div>
+            <button class="hb" type="button" data-back aria-label="Назад"></button>
+            <button class="heart hv" type="button" id="vLike" aria-label="Додати в обране"></button>
+            <button class="harr l" type="button" id="hPrev" aria-label="Попереднє фото"><span data-i="back"></span></button>
+            <button class="harr r" type="button" id="hNext" aria-label="Наступне фото"><span data-i="next"></span></button>
+            <div class="hdots" id="vDots"></div>
+            <span class="hcount" id="hCount2"></span>
+          </div>
+          <div class="vbody">
+            <h2 id="vName"></h2>
+            <div class="vaddr"><span data-i="pin"></span><span id="vAddr"></span></div>
+            <div class="vdist" id="vDist"></div>
+            <div class="vrate"><span class="stars" id="vStars"></span><b id="vAvg"></b><button class="link" type="button" id="vRevLink"></button></div>
+            <div class="vopen" id="vOpen"></div>
+            <div class="vbook"><div><small id="vPriceL"></small><b id="vPrice"></b></div><button class="btn" type="button" id="vBook">Забронювати</button></div>
+            <h3>Опис</h3>
+            <p class="desc" id="vDesc"></p>
+            <h3>Умови</h3>
+            <div class="vchips" id="vConds"></div>
+            <div class="revtop"><h3 id="vRevH">Рейтинг і відгуки</h3></div>
+            <div class="hist"><div class="big"><b id="hAvg"></b><span class="stars" id="hStars"></span><small id="hCount"></small></div><div class="bars" id="hBars"></div></div>
+            <div class="rfil" id="rFil"></div>
+            <button class="btn ghost writebtn" type="button" id="vWrite"><span data-i="edit"></span>&nbsp;Залишити відгук</button>
+            <div id="vReviews"></div>
+            <button class="btn ghost loadmore" type="button" id="vMore" style="margin-top:6px">Завантажити більше відгуків</button>
+          </div>
+        </div>
+        <nav class="tabbar" data-tabbar="map" aria-label="Головне меню"></nav>
+      </section>
+
+      <!-- favourites -->
+      <section class="scr" data-s="fav" aria-label="Обране" hidden>
+        <h3 class="ttl">Обране</h3>
+        <label class="search" style="flex:0 0 auto"><span data-i="search"></span><input id="favQ" type="search" placeholder="Пошук" autocomplete="off"></label>
+        <div class="ftabs" role="tablist" id="favTabs"></div>
+        <div class="ichips" id="favChips"></div>
+        <div class="fcount" id="favCount"></div>
+        <div class="scroll pad-tab" id="favList"></div>
+        <nav class="tabbar" data-tabbar="fav" aria-label="Головне меню"></nav>
+      </section>
+
+      <!-- profile -->
+      <section class="scr" data-s="profile" aria-label="Профіль" hidden>
+        <div class="hdr"><span></span><h3>Профіль</h3><button class="ibtn" type="button" data-go="notifications" aria-label="Сповіщення"><span data-i="bell"></span><i class="ndot" data-ndot hidden></i></button></div>
+        <div class="scroll pad-tab">
+          <div class="pcard"><span id="pAv"></span><div><b id="pName"></b><span id="pEmail"></span></div><button class="link" type="button" data-go="editProfile">Змінити</button></div>
+          <div class="stats">
+            <button type="button" data-go="bookings"><b id="stB">0</b><span id="stBl">бронювань</span></button>
+            <button type="button" data-go="myReviews"><b id="stR">0</b><span id="stRl">відгуків</span></button>
+            <button type="button" data-tabto="fav"><b id="stF">0</b><span>в обраному</span></button>
+          </div>
+          <div class="group"><small>Активність</small><div class="list">
+            <button class="row" type="button" data-go="bookings"><span class="ri"><span data-i="cal"></span></span><span class="rt"><b>Мої бронювання</b><small id="pNextBk"></small></span><span class="chev" data-i="next"></span></button>
+            <button class="row" type="button" data-go="myReviews"><span class="ri"><span data-i="star2"></span></span><span class="rt"><b>Мої відгуки</b></span><span class="chev" data-i="next"></span></button>
+            <button class="row" type="button" data-go="notifications"><span class="ri"><span data-i="bell"></span></span><span class="rt"><b>Сповіщення</b></span><span class="badge" id="pNBadge" hidden></span><span class="chev" data-i="next"></span></button>
+          </div></div>
+          <div class="group"><small>Акаунт</small><div class="list">
+            <button class="row" type="button" data-go="settings"><span class="ri"><span data-i="gear"></span></span><span class="rt"><b>Налаштування</b><small>Мова, місто, сповіщення</small></span><span class="chev" data-i="next"></span></button>
+            <button class="row" type="button" data-go="security"><span class="ri"><span data-i="lock"></span></span><span class="rt"><b>Безпека</b><small>Пароль, двофакторний вхід, сесії</small></span><span class="chev" data-i="next"></span></button>
+            <button class="row" type="button" data-go="permissions"><span class="ri"><span data-i="shield"></span></span><span class="rt"><b>Дозволи</b><small>Геолокація, камера, календар</small></span><span class="chev" data-i="next"></span></button>
+          </div></div>
+          <div class="group"><small>Підтримка</small><div class="list">
+            <button class="row" type="button" data-go="help"><span class="ri"><span data-i="help"></span></span><span class="rt"><b>Допомога</b><small>Часті питання та підтримка</small></span><span class="chev" data-i="next"></span></button>
+          </div></div>
+          <button class="btn ghost danger" type="button" id="logout" style="margin-top:22px"><span data-i="logout"></span>&nbsp;Вийти з акаунта</button>
+          <p class="appver">SpaceHub · версія 1.0 (прототип)</p>
+        </div>
+        <nav class="tabbar" data-tabbar="profile" aria-label="Головне меню"></nav>
+      </section>
+
+      <!-- edit profile -->
+      <section class="scr" data-s="editProfile" aria-label="Редагування профілю" hidden>
+        <div class="hdr"><button class="back" type="button" data-back aria-label="Назад"></button><h3>Особисті дані</h3><span></span></div>
+        <div class="scroll">
+          <form id="epForm" novalidate>
+            <div class="avedit"><span id="epAv"></span><label class="link" for="epPhoto">Змінити фото</label><input class="sr" type="file" id="epPhoto" accept="image/*"></div>
+            <div class="field"><label class="lbl" for="epName">Ім'я та прізвище<b>*</b></label><div class="inp"><input id="epName" type="text" autocomplete="name"></div><div class="err" id="epNameErr"></div></div>
+            <div class="field"><label class="lbl" for="epEmail">Електронна пошта<b>*</b></label><div class="inp"><input id="epEmail" type="email" autocomplete="email"></div><div class="err" id="epEmailErr"></div></div>
+            <div class="field"><label class="lbl" for="epPhone">Телефон</label><div class="row2"><div class="inp cc"><i class="flag"></i><span>+380</span></div><div class="inp" style="flex:1"><input id="epPhone" type="tel" inputmode="numeric" autocomplete="tel-national"></div></div><div class="err" id="epPhoneErr"></div></div>
+          </form>
+        </div>
+        <div class="bottom"><button class="btn" type="submit" form="epForm">Зберегти зміни</button></div>
+      </section>
+
+      <!-- notifications -->
+      <section class="scr" data-s="notifications" aria-label="Сповіщення" hidden>
+        <div class="hdr"><button class="back" type="button" data-back aria-label="Назад"></button><h3>Сповіщення</h3><button class="link" type="button" id="nAll">Прочитати всі</button></div>
+        <div class="seg" role="tablist" id="nSeg" style="margin-top:12px"><button type="button" role="tab" data-nf="all" aria-selected="true">Усі</button><button type="button" role="tab" data-nf="unread" aria-selected="false">Непрочитані</button></div>
+        <div class="scroll" id="nList" style="padding-top:14px;padding-bottom:20px"></div>
+      </section>
+
+      <!-- settings -->
+      <section class="scr" data-s="settings" aria-label="Налаштування" hidden>
+        <div class="hdr"><button class="back" type="button" data-back aria-label="Назад"></button><h3>Налаштування</h3><span></span></div>
+        <div class="scroll" style="padding-bottom:24px">
+          <div class="group"><small>Загальні</small><div class="list">
+            <button class="row" type="button" data-choice="lang"><span class="ri"><span data-i="globe"></span></span><span class="rt"><b>Мова</b></span><span class="rv" data-val="lang"></span><span class="chev" data-i="next"></span></button>
+            <button class="row" type="button" data-choice="city"><span class="ri"><span data-i="pin"></span></span><span class="rt"><b>Місто</b></span><span class="rv" data-val="city"></span><span class="chev" data-i="next"></span></button>
+            <button class="row" type="button" data-choice="theme"><span class="ri"><span data-i="moon"></span></span><span class="rt"><b>Тема</b></span><span class="rv" data-val="theme"></span><span class="chev" data-i="next"></span></button>
+            <button class="row" type="button" data-choice="radius"><span class="ri"><span data-i="locate"></span></span><span class="rt"><b>Радіус пошуку «поруч»</b></span><span class="rv" data-val="radius"></span><span class="chev" data-i="next"></span></button>
+          </div></div>
+          <div class="group"><small>Сповіщення</small><div class="list">
+            <label class="row"><span class="ri"><span data-i="bell"></span></span><span class="rt"><b>Push-сповіщення</b><small>Головний перемикач для всіх сповіщень</small></span><span class="sw"><input type="checkbox" role="switch" data-set="push"><i></i></span></label>
+            <label class="row"><span class="ri"><span data-i="cal"></span></span><span class="rt"><b>Нагадування про бронювання</b><small>За годину до початку</small></span><span class="sw"><input type="checkbox" role="switch" data-set="remind" data-dep="push"><i></i></span></label>
+            <label class="row"><span class="ri"><span data-i="pin"></span></span><span class="rt"><b>Нові заклади поруч</b></span><span class="sw"><input type="checkbox" role="switch" data-set="nearby" data-dep="push"><i></i></span></label>
+            <label class="row"><span class="ri"><span data-i="msg"></span></span><span class="rt"><b>Відповіді на мої відгуки</b></span><span class="sw"><input type="checkbox" role="switch" data-set="replies" data-dep="push"><i></i></span></label>
+            <label class="row"><span class="ri"><span data-i="mail"></span></span><span class="rt"><b>Email-розсилка</b><small>Знижки та добірки раз на тиждень</small></span><span class="sw"><input type="checkbox" role="switch" data-set="email"><i></i></span></label>
+          </div></div>
+          <div class="group"><small>Конфіденційність</small><div class="list">
+            <label class="row"><span class="ri"><span data-i="user"></span></span><span class="rt"><b>Показувати ім'я у відгуках</b><small>Інакше підпис буде «Користувач SpaceHub»</small></span><span class="sw"><input type="checkbox" role="switch" data-set="showName"><i></i></span></label>
+            <label class="row"><span class="ri"><span data-i="clock"></span></span><span class="rt"><b>Історія переглядів</b><small>Блок «Переглянуті заклади» на головній</small></span><span class="sw"><input type="checkbox" role="switch" data-set="history"><i></i></span></label>
+            <button class="row" type="button" id="clearHist"><span class="ri red"><span data-i="trash"></span></span><span class="rt"><b class="danger">Очистити історію переглядів</b></span></button>
+          </div></div>
+        </div>
+      </section>
+
+      <!-- security -->
+      <section class="scr" data-s="security" aria-label="Безпека" hidden>
+        <div class="hdr"><button class="back" type="button" data-back aria-label="Назад"></button><h3>Безпека</h3><span></span></div>
+        <div class="scroll" style="padding-bottom:24px">
+          <div class="group"><small>Вхід</small><div class="list">
+            <button class="row" type="button" data-go="password"><span class="ri"><span data-i="lock"></span></span><span class="rt"><b>Змінити пароль</b><small id="pwChanged">Змінено 3 місяці тому</small></span><span class="chev" data-i="next"></span></button>
+            <label class="row"><span class="ri"><span data-i="phone"></span></span><span class="rt"><b>Двофакторний вхід</b><small>Код з SMS на +380 <span id="tfPhone"></span></small></span><span class="sw"><input type="checkbox" role="switch" data-set="twofa"><i></i></span></label>
+            <label class="row"><span class="ri"><span data-i="finger"></span></span><span class="rt"><b>Вхід за Face ID / відбитком</b></span><span class="sw"><input type="checkbox" role="switch" data-set="bio"><i></i></span></label>
+          </div></div>
+          <div class="group"><small>Активні сесії</small><div class="list" id="sessions"></div></div>
+          <div class="group"><small>Небезпечна зона</small><div class="list">
+            <button class="row" type="button" id="delAcc"><span class="ri red"><span data-i="trash"></span></span><span class="rt"><b class="danger">Видалити акаунт</b><small>Бронювання, відгуки й обране буде видалено назавжди</small></span></button>
+          </div></div>
+        </div>
+      </section>
+
+      <!-- change password -->
+      <section class="scr" data-s="password" aria-label="Зміна пароля" hidden>
+        <div class="hdr"><button class="back" type="button" data-back aria-label="Назад"></button><h3>Зміна пароля</h3><span></span></div>
+        <div class="scroll">
+          <form id="pwForm" novalidate>
+            <div class="field"><label class="lbl" for="pwOld">Поточний пароль<b>*</b></label><div class="inp"><input id="pwOld" type="password" autocomplete="current-password"><button class="eye" type="button" data-eye="pwOld" aria-label="Показати пароль"></button></div><div class="err" id="pwOldErr"></div></div>
+            <div class="field"><label class="lbl" for="pwNew">Новий пароль<b>*</b></label><div class="inp"><input id="pwNew" type="password" autocomplete="new-password"><button class="eye" type="button" data-eye="pwNew" aria-label="Показати пароль"></button></div><div class="meter"><i id="pwMeter"></i></div><div class="mhint" id="pwHint">Щонайменше 8 символів, цифра й велика літера</div><div class="err" id="pwNewErr"></div></div>
+            <div class="field"><label class="lbl" for="pwRep">Повторіть новий пароль<b>*</b></label><div class="inp"><input id="pwRep" type="password" autocomplete="new-password"><button class="eye" type="button" data-eye="pwRep" aria-label="Показати пароль"></button></div><div class="err" id="pwRepErr"></div></div>
+          </form>
+        </div>
+        <div class="bottom"><button class="btn" type="submit" form="pwForm">Змінити пароль</button></div>
+      </section>
+
+      <!-- permissions -->
+      <section class="scr" data-s="permissions" aria-label="Дозволи" hidden>
+        <div class="hdr"><button class="back" type="button" data-back aria-label="Назад"></button><h3>Дозволи</h3><span></span></div>
+        <div class="scroll" style="padding-bottom:24px">
+          <p class="sub" style="font-size:15px;margin-top:10px">Ви керуєте тим, до чого SpaceHub має доступ на цьому пристрої. Змінити це можна будь-коли.</p>
+          <div class="group"><div class="list">
+            <label class="row"><span class="ri"><span data-i="pin"></span></span><span class="rt"><b>Геолокація</b><small>Показувати заклади поруч і відстань до них</small></span><span class="sw"><input type="checkbox" role="switch" data-perm="geo"><i></i></span></label>
+            <label class="row"><span class="ri"><span data-i="bell"></span></span><span class="rt"><b>Сповіщення</b><small>Нагадування про бронювання й відповіді на відгуки</small></span><span class="sw"><input type="checkbox" role="switch" data-perm="notif"><i></i></span></label>
+            <label class="row"><span class="ri"><span data-i="camera"></span></span><span class="rt"><b>Камера</b><small>Фотографувати заклад для відгуку</small></span><span class="sw"><input type="checkbox" role="switch" data-perm="camera"><i></i></span></label>
+            <label class="row"><span class="ri"><span data-i="image"></span></span><span class="rt"><b>Фото й медіа</b><small>Додавати фото з галереї до відгуків і профілю</small></span><span class="sw"><input type="checkbox" role="switch" data-perm="photos"><i></i></span></label>
+            <label class="row"><span class="ri"><span data-i="cal"></span></span><span class="rt"><b>Календар</b><small>Додавати бронювання в календар</small></span><span class="sw"><input type="checkbox" role="switch" data-perm="cal"><i></i></span></label>
+          </div></div>
+        </div>
+      </section>
+
+      <!-- help -->
+      <section class="scr" data-s="help" aria-label="Допомога" hidden>
+        <div class="hdr"><button class="back" type="button" data-back aria-label="Назад"></button><h3>Допомога</h3><span></span></div>
+        <div class="scroll" style="padding-bottom:24px">
+          <div class="group"><small>Часті питання</small>
+            <details class="faq"><summary>Як скасувати бронювання?</summary><p>Профіль → Мої бронювання → «Скасувати». Безкоштовно скасувати можна не пізніше ніж за 2 години до початку.</p></details>
+            <details class="faq"><summary>Що означає позначка «Перевірено»?</summary><p>Команда SpaceHub особисто відвідала заклад і перевірила Wi-Fi, розетки та умови, вказані на сторінці.</p></details>
+            <details class="faq"><summary>Чи можна працювати в кав'ярні без замовлення?</summary><p>Залежить від закладу. Шукайте умову «Без ліміту часу» у фільтрі або на сторінці закладу.</p></details>
+            <details class="faq"><summary>Як додати свій заклад?</summary><p>Напишіть нам на partners@spacehub.app, і ми зв'яжемося протягом 2 робочих днів.</p></details>
+          </div>
+          <div class="group"><small>Написати в підтримку</small>
+            <form id="supForm" novalidate><textarea class="ta" id="supText" placeholder="Опишіть проблему або питання" maxlength="500"></textarea><div class="err" id="supTextErr"></div><button class="btn" type="submit" style="margin-top:12px">Надіслати</button></form>
+          </div>
+        </div>
+      </section>
+
+      <!-- my bookings -->
+      <section class="scr" data-s="bookings" aria-label="Мої бронювання" hidden>
+        <div class="hdr"><button class="back" type="button" data-back aria-label="Назад"></button><h3>Бронювання</h3><span></span></div>
+        <div class="seg" role="tablist" id="bkSeg" style="margin-top:12px"><button type="button" role="tab" data-bf="up" aria-selected="true">Майбутні</button><button type="button" role="tab" data-bf="past" aria-selected="false">Минулі</button><button type="button" role="tab" data-bf="cancel" aria-selected="false">Скасовані</button></div>
+        <div class="scroll" id="bkList" style="padding-bottom:24px"></div>
+      </section>
+
+      <!-- booking details -->
+      <section class="scr" data-s="bkDetail" aria-label="Деталі бронювання" hidden>
+        <div class="hdr"><button class="back" type="button" data-back aria-label="Назад"></button><h3>Бронювання</h3><span></span></div>
+        <div class="scroll" id="bdScroll" style="padding-bottom:24px">
+          <div class="bdtop"><span class="pill" id="bdStatus"></span><span class="bdnum">№ <b id="bdNum"></b></span></div>
+          <div class="qrcard" id="bdQrWrap"><div class="qr" id="bdQr" role="img" aria-label="QR-код бронювання"></div><p>Покажіть цей код адміністратору на вході</p></div>
+          <div class="vmini" id="bdVenue" style="margin-top:14px"></div>
+          <div class="ticket" id="bdInfo" style="margin-top:12px"></div>
+          <div class="bsec"><h5>Як дістатися</h5>
+            <a class="bdmap" id="bdMap" href="#" target="_blank" rel="noopener" aria-label="Відкрити адресу в Google Maps"><img src="img/mapc.jpg" alt="" width="786" height="897"><span class="bdpin" id="bdMapPin"><svg viewBox="0 0 24 32" width="30" height="40"><path d="M12 0C5.4 0 0 5.3 0 11.9 0 20.8 12 32 12 32s12-11.2 12-20.1C24 5.3 18.6 0 12 0z" fill="#175CFF"/><circle cx="12" cy="12" r="4.2" fill="#fff"/></svg></span><span class="bdgo">Відкрити в Google Maps ↗</span></a>
+            <div class="bdaddr"><span id="bdAddr"></span><a class="link" id="bdMapLink" href="#" target="_blank" rel="noopener">Маршрут</a></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:20px">
+            <button class="btn ghost" type="button" id="bdCal">Додати в календар</button>
+            <button class="btn ghost" type="button" id="bdReview">Залишити відгук</button>
+            <button class="btn ghost" type="button" id="bdVenueBtn">Сторінка закладу</button>
+            <button class="btn ghost danger" type="button" id="bdCancel">Скасувати бронювання</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- my reviews -->
+      <section class="scr" data-s="myReviews" aria-label="Мої відгуки" hidden>
+        <div class="hdr"><button class="back" type="button" data-back aria-label="Назад"></button><h3>Мої відгуки</h3><span></span></div>
+        <div class="scroll" id="mrList" style="padding-bottom:24px"></div>
+      </section>
+
+      <!-- booking flow -->
+      <section class="scr" data-s="book" aria-label="Бронювання" hidden>
+        <div class="hdr"><button class="back" type="button" data-back aria-label="Назад"></button><h3>Бронювання</h3><span></span></div>
+        <div class="scroll" id="bkScroll" style="padding-bottom:16px">
+          <div class="vmini" id="bVenue"></div>
+          <div class="bsec"><h5>Що бронюєте</h5><div class="kinds" id="bKinds"></div></div>
+          <div class="bsec"><h5>Дата <small id="bMonth"></small></h5><div class="days" id="bDays"></div></div>
+          <div class="bsec"><h5>Час початку <small id="bHours"></small></h5><div class="times" id="bTimes"></div></div>
+          <div class="bsec"><h5>Тривалість і кількість</h5>
+            <div class="stepper"><span>Тривалість, год</span><div><button type="button" data-step="dur" data-d="-1" aria-label="Менше годин">−</button><b id="bDur">2</b><button type="button" data-step="dur" data-d="1" aria-label="Більше годин">+</button></div></div>
+            <div class="stepper" style="margin-top:8px"><span id="bPplL">Кількість місць</span><div><button type="button" data-step="ppl" data-d="-1" aria-label="Менше людей">−</button><b id="bPpl">1</b><button type="button" data-step="ppl" data-d="1" aria-label="Більше людей">+</button></div></div>
+          </div>
+          <div class="bsec" id="bPaySec"><h5>Оплата</h5><div class="pays" id="bPays">
+            <label class="radio"><input type="radio" name="pay" value="place" checked><i></i>На місці</label>
+            <label class="radio"><input type="radio" name="pay" value="gpay"><i></i>Google Pay</label>
+            <label class="radio"><input type="radio" name="pay" value="apay"><i></i>Apple Pay</label>
+          </div></div>
+          <div class="bsec"><h5>Коментар <small>необов'язково</small></h5><textarea class="ta" id="bNote" maxlength="200" placeholder="Наприклад: місце біля вікна"></textarea></div>
+        </div>
+        <div class="cbar"><div><small id="bSum">Оберіть час</small><b id="bTotal">—</b></div><button class="btn" type="button" id="bConfirm" disabled>Підтвердити</button></div>
+      </section>
+
+      <!-- booking success -->
+      <section class="scr" data-s="booked" aria-label="Бронювання підтверджено" hidden>
+        <div class="scroll" style="padding-top:20px">
+          <div class="okicon"><span data-i="okc"></span></div>
+          <h2 class="h1" style="text-align:center;margin-top:18px">Заброньовано!</h2>
+          <p class="sub" style="text-align:center">Ми надіслали підтвердження на <span id="okEmail"></span></p>
+          <div class="ticket" id="okTicket"></div>
+        </div>
+        <div class="bottom">
+          <button class="btn ghost" type="button" id="okCal"><span data-i="cal"></span>&nbsp;Додати в календар</button>
+          <button class="btn" type="button" id="okList">Мої бронювання</button>
+          <button class="link" type="button" data-home style="align-self:center;padding:6px">На головну</button>
+        </div>
+      </section>
+
+      <!-- write review -->
+      <section class="scr" data-s="review" aria-label="Новий відгук" hidden>
+        <div class="hdr"><button class="back" type="button" data-back aria-label="Назад"></button><h3>Відгук</h3><span></span></div>
+        <div class="scroll" style="padding-bottom:16px">
+          <div class="vmini" id="rvVenue"></div>
+          <h5 style="font-size:18px;text-align:center;margin:24px 0 0">Як вам заклад?</h5>
+          <div class="bigstars" id="rvStars" role="radiogroup" aria-label="Оцінка"></div>
+          <div class="rlabel" id="rvLabel"></div>
+          <div class="bsec"><h5>Що сподобалось</h5><div class="tchips" id="rvTags"></div></div>
+          <div class="bsec"><h5>Ваш відгук</h5><textarea class="ta" id="rvText" maxlength="500" placeholder="Розкажіть про Wi-Fi, розетки, атмосферу й персонал"></textarea><div class="counter" id="rvCount">0 / 500</div><div class="err" id="rvErr"></div></div>
+          <div class="bsec"><h5>Фото <small>до 3</small></h5><div class="photos" id="rvPhotos"></div><input class="sr" type="file" id="rvFile" accept="image/*" multiple></div>
+        </div>
+        <div class="bottom"><button class="btn" type="button" id="rvSend">Опублікувати відгук</button></div>
+      </section>
+
+      <!-- generic sheet -->
+      <div class="scrim" id="scrim3" hidden></div>
+      <div class="sheet small gs" id="gSheet" role="dialog" aria-modal="true" hidden>
+        <button class="x" type="button" id="gX" aria-label="Закрити"><span data-i="x"></span></button>
+        <div class="sc"><h4 id="gTitle"></h4><div id="gBody"></div></div>
+        <div class="acts"><button class="btn ghost" type="button" id="gCancel" style="flex:0 0 140px">Скасувати</button><button class="btn" type="button" id="gOk">Так</button></div>
+      </div>
+
+      <!-- promo sheet -->
+      <div class="scrim" id="scrim4" hidden></div>
+      <div class="sheet small" id="promoSheet" role="dialog" aria-modal="true" aria-labelledby="prTitle" hidden>
+        <button class="x" type="button" id="prX" aria-label="Закрити"><span data-i="x"></span></button>
+        <div class="sc">
+          <img class="primg" id="prImg" src="img/banner.jpg" alt="">
+          <span class="ppill" id="prVenue"></span>
+          <h4 id="prTitle"></h4>
+          <p class="prdesc" id="prDesc"></p>
+          <span class="prwhen" id="prWhen"></span>
+          <div class="bsec"><h5>Умови</h5><ul class="prcond" id="prCond"></ul></div>
+        </div>
+        <div class="acts"><button class="bellbtn" type="button" id="prRemind" aria-pressed="false" aria-label="Нагадати пізніше"><span data-i="bell"></span></button><button class="btn" type="button" id="prGo">Перейти до закладу</button></div>
+      </div>
+
+      <!-- review sort sheet -->
+      <div class="scrim" id="scrim2" hidden></div>
+      <div class="sheet small" id="sortSheet" role="dialog" aria-modal="true" aria-label="Сортування відгуків" hidden>
+        <button class="x" type="button" id="sortX" aria-label="Закрити"><span data-i="x"></span></button>
+        <div class="sc"><h4 style="margin-bottom:10px">Сортування</h4><div id="sortOpts" role="radiogroup" aria-label="Сортування відгуків"></div></div>
+        <div class="acts"><button class="btn ghost" type="button" id="sortCancel" style="flex:0 0 140px">Скасувати</button><button class="btn" type="button" id="sortApply">Застосувати</button></div>
+      </div>
+
+      <!-- filter sheet -->
+      <div class="scrim" id="scrim" hidden></div>
+      <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Фільтр" hidden>
+        <button class="x" type="button" id="sheetX" aria-label="Закрити фільтр"><span data-i="x"></span></button>
+        <div class="sc" id="sheetSc">
+          <div class="active" id="activeChips"></div>
+          <div class="banner" id="noMatch" hidden>Немає просторів, що відповідають цим фільтрам. Спробуйте прибрати кілька умов.</div>
+          <h4>Фільтр</h4>
+          <div id="fGroups"></div>
+        </div>
+        <div class="acts"><button class="btn ghost" type="button" id="fReset">Скинути</button><button class="btn" type="button" id="fApply">Показати</button></div>
+      </div>
+
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+      <div class="home-ind"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+(function(){
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const I={
+  back:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4 7 12l8 8"/></svg>',
+  next:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg>',
+  search:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="11" cy="11" r="7.5"/><path d="m21 21-4.5-4.5"/></svg>',
+  sliders:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 7h10M17 7h4M3 17h4M11 17h10"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>',
+  locate:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="2.8" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke-linecap="round"/></svg>',
+  eye:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+  eyeOff:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 3l18 18M10.6 5.6A10 10 0 0 1 12 5.5c6.4 0 10 6.5 10 6.5a17 17 0 0 1-3.2 3.9M6.6 6.6C3.7 8.4 2 12 2 12s3.6 6.5 10 6.5c1.7 0 3.2-.4 4.5-1.1M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>',
+  tick:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
+  down:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>',
+  google:'<svg width="20" height="20" viewBox="0 0 48 48"><path fill="#4285F4" d="M44.5 24.5c0-1.6-.1-2.8-.4-4H24v7.6h11.8c-.5 3-2.3 5.6-5 7.3v6h8.1c4.7-4.3 5.6-10.7 5.6-16.9z"/><path fill="#34A853" d="M24 45c6.5 0 12-2.1 15.9-5.8l-8.1-6c-2.2 1.5-5 2.4-7.8 2.4-6.1 0-11.2-4.1-13-9.6H2.7v6.2C6.6 40 14.7 45 24 45z"/><path fill="#FBBC05" d="M11 26c-.5-1.4-.7-2.9-.7-4.5s.3-3.1.7-4.5v-6.2H2.7A21 21 0 0 0 .5 21.5c0 3.4.8 6.6 2.2 9.5L11 26z"/><path fill="#EA4335" d="M24 8.4c3.4 0 6.5 1.2 8.9 3.5l6.7-6.7C35.9 1.9 30.5 0 24 0 14.7 0 6.6 5 2.7 12.4L11 18.6c1.8-5.5 6.9-10.2 13-10.2z"/></svg>',
+  star:'<svg width="17" height="17" viewBox="0 0 24 24"><path fill="#F2B705" d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z"/></svg>',
+  heart:'<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 20.5S3.5 15.3 3.5 9.2A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.5 2.6c0 6.1-8.5 11.3-8.5 11.3z"/></svg>',
+  check:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
+  pin:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
+  wifi:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M2 8.5a15 15 0 0 1 20 0M5.5 12.2a10 10 0 0 1 13 0M9 15.8a5 5 0 0 1 6 0"/><circle cx="12" cy="19" r="1" fill="currentColor"/></svg>',
+  plug:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></svg>',
+  sofa:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M5 11V8a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v3"/><path d="M3 12a2 2 0 0 1 4 0v2h10v-2a2 2 0 0 1 4 0v5H3z"/><path d="M5 17v2M19 17v2"/></svg>',
+  clock:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
+  users:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.3 2.8-5.2 5.5-5.2s4.9 1.9 5.5 5.2M16 5.3a3 3 0 0 1 0 5.6M17.5 14c1.6.6 2.7 2.4 3 5"/></svg>',
+  paw:'<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="6.5" cy="10" r="2"/><circle cx="10" cy="6" r="2"/><circle cx="14" cy="6" r="2"/><circle cx="17.5" cy="10" r="2"/><path d="M12 11.5c-3 0-6 4.8-4.6 6.7 1.1 1.4 3 .3 4.6.3s3.5 1.1 4.6-.3c1.4-1.9-1.6-6.7-4.6-6.7z"/></svg>',
+  leaf:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19c0-8 5-13 14-14 0 9-5 14-13 14zM5 19l7-7"/></svg>',
+  list:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h11M4 17h7"/></svg>',
+  map:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20z"/><path d="M9 4v13.5M15 6.5V20"/></svg>',
+  x:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 5l14 14M19 5 5 19"/></svg>',
+  door:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M5 21V4.5L14 3v18M14 5h4v16M3 21h18"/><circle cx="11" cy="12" r=".9" fill="currentColor"/></svg>',
+  bolt:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M13 2.5 4.5 13.5H11L10 21.5l8.5-11H12z"/></svg>',
+  home:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M4 10.5 12 4l8 6.5V20H4z"/></svg>',
+  user:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5c1-4 3.9-6 7.5-6s6.5 2 7.5 6"/></svg>',
+  sort:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20V4M3.5 7.5 7 4l3.5 3.5M17 4v16M13.5 16.5 17 20l3.5-3.5"/></svg>',
+  mpin:'<svg viewBox="0 0 24 32"><path d="M12 0C5.4 0 0 5.3 0 11.9 0 20.8 12 32 12 32s12-11.2 12-20.1C24 5.3 18.6 0 12 0z" fill="currentColor"/><circle cx="12" cy="12" r="4.2" fill="#fff"/></svg>',
+  bell:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg>',
+  cal:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>',
+  star2:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="m12 3.2 2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 17l-5.4 2.9 1.1-6.1-4.5-4.2 6.1-.8z"/></svg>',
+  gear:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
+  lock:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>',
+  shield:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 3 4.5 6v5.5c0 4.6 3.2 8 7.5 9.5 4.3-1.5 7.5-4.9 7.5-9.5V6z"/><path d="m9 12 2.2 2.2L15.5 10" stroke-linecap="round"/></svg>',
+  help:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.6 2.6 0 0 1 5 .9c0 1.7-2.5 2.2-2.5 3.8"/><circle cx="12" cy="17.2" r=".9" fill="currentColor"/></svg>',
+  logout:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 16l-4-4 4-4M6 12h10"/></svg>',
+  trash:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v6M14 11v6"/></svg>',
+  edit:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></svg>',
+  globe:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.7 5.6 3.7 9s-1.2 6.4-3.7 9c-2.5-2.6-3.7-5.6-3.7-9S9.5 5.6 12 3z"/></svg>',
+  moon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>',
+  msg:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/></svg>',
+  mail:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6"/></svg>',
+  phone:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg>',
+  finger:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M7 5.5A8 8 0 0 1 20 12v1M4.5 9.5A8 8 0 0 0 4 12v3M12 8a4 4 0 0 1 4 4v2.5a8 8 0 0 1-1 4M8 12a4 4 0 0 1 1.2-2.9M12 12v3a8 8 0 0 1-2 5.3M8 15.5a8 8 0 0 1-1.2 3.5"/></svg>',
+  camera:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+  image:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.8"/><path d="m4 18 5-5 4 4 3-3 4 4"/></svg>',
+  plus:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  okc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
+  desk:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="9" rx="1.5"/><path d="M3 17h18M9 13v4M15 13v4M10 20h4"/></svg>',
+  cup:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5zM16 10h1.5a2.5 2.5 0 0 1 0 5H16M8 3.5v2M11 3v2.5M14 3.5v2"/></svg>',
+  xs:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>'
+};
+const fill=root=>{(root||document).querySelectorAll('[data-i]').forEach(e=>{e.innerHTML=I[e.dataset.i];e.style.display='inline-flex'});};
+$$('[data-back]').forEach(b=>b.innerHTML=I.back);
+$('#obNext').innerHTML=I.next;
+$$('[data-eye]').forEach(b=>b.innerHTML=I.eyeOff);
+fill();
+
+/* ---------- data (example venues) ---------- */
+const TAG={wifi:['wifi','Wi-Fi'],sockets:['plug','Розетки'],comfort:['sofa','Комфорт'],nolimit:['clock','Без ліміту часу'],meeting:['users','Переговорні'],pet:['paw','Pet-friendly'],vegan:['leaf','Веганське меню']};
+const V=[
+ {id:1,name:'Free Coworking',type:'Коворкінг',img:'p1c',pos:'50% 50%',rating:5.0,hours:'09:00–19:00',dist:0.4,ver:true,tags:['wifi','sockets','comfort','nolimit'],cond:['wifi','sockets','comfort','power'],food:['regular','snacks'],laptop:true,x:33,y:43},
+ {id:2,name:'Link Coworking',type:'Коворкінг',img:'p2c',pos:'50% 50%',rating:4.9,hours:'08:00–22:00',dist:0.9,ver:true,tags:['wifi','sockets','comfort','meeting'],cond:['wifi','sockets','comfort','meeting','pet'],food:['regular','vegetarian'],laptop:true,x:58,y:33},
+ {id:3,name:'WorkSpace',type:'Коворкінг',img:'p3c',pos:'50% 50%',rating:4.7,hours:'09:00–20:00',dist:1.6,ver:false,tags:['wifi','sockets','meeting'],cond:['wifi','sockets','meeting','power'],food:['snacks'],laptop:true,x:46,y:62},
+ {id:4,name:'Кав’ярня «Зерно»',type:'Кав’ярня',img:'p3c',pos:'20% 50%',rating:4.8,hours:'08:00–21:00',dist:0.6,ver:true,tags:['wifi','sockets','pet','vegan'],cond:['wifi','sockets','pet'],food:['vegan','vegetarian','regular'],laptop:true,x:26,y:56},
+ {id:5,name:'Тиха читальня',type:'Бібліотека',img:'p1c',pos:'15% 50%',rating:5.0,hours:'10:00–20:00',dist:1.2,ver:true,tags:['wifi','sockets','comfort','nolimit'],cond:['wifi','sockets','comfort'],food:['snacks'],laptop:true,x:70,y:52},
+ {id:6,name:'Лаунж «Вежа»',type:'Лаунж-простір',img:'p2c',pos:'85% 50%',rating:4.6,hours:'11:00–23:00',dist:2.1,ver:false,tags:['wifi','comfort','vegan'],cond:['wifi','comfort','pet'],food:['vegan','regular'],laptop:false,x:62,y:72},
+ {id:7,name:'Бізнес-центр «Ринок»',type:'Бізнес центр',img:'p2c',pos:'30% 50%',rating:4.5,hours:'08:00–20:00',dist:1.8,ver:true,tags:['wifi','sockets','meeting'],cond:['wifi','sockets','meeting','power','comfort'],food:['regular'],laptop:true,x:40,y:28},
+ {id:8,name:'Pixel Hub',type:'Коворкінг',img:'p4c',pos:'50% 50%',rating:5.0,hours:'09:00–21:00',dist:1.5,ver:true,tags:['wifi','sockets','comfort','nolimit'],cond:['wifi','sockets','comfort','meeting','pet','power'],food:['regular','vegetarian','snacks'],laptop:true,x:52,y:52}
+];
+const INFO={
+ 1:['вул. Городоцька, 12','Світлий коворкінг біля центру зі швидким Wi-Fi, розетками біля кожного столу й кавою на рецепції.'],
+ 2:['вул. Шевченка, 40','Просторий коворкінг із живими рослинами, переговорною на 6 людей і тихою зоною для дзвінків.'],
+ 3:['вул. Зелена, 7','Невеликий простір для зосередженої роботи. Є переговорна і резервне живлення.'],
+ 4:['пл. Ринок, 18','Затишна кав’ярня з веганським меню, де можна працювати з ноутбуком. Тут раді собакам.'],
+ 5:['вул. Драгоманова, 5','Тиха читальня без ліміту часу: зручні крісла, лампи на кожному столі й розетки.'],
+ 6:['вул. Під Дубом, 7','Лаунж із м’якими диванами для неформальних зустрічей і відпочинку між задачами.'],
+ 7:['вул. Личаківська, 30','Бізнес-центр із переговорними, які можна забронювати погодинно, та резервним живленням.'],
+ 8:['вул. Голосіївська, 31','Сучасний коворкінг із комфортними місцями для роботи та швидким Wi-Fi.']};
+const COND={wifi:['wifi','Wi-Fi'],sockets:['plug','Розетки'],comfort:['sofa','Комфортні місця'],meeting:['door','Переговорні'],pet:['paw','Pet-friendly'],power:['bolt','Резервне живлення'],nolimit:['clock','Без ліміту часу']};
+const REV=[
+ ['Тарас','6 лис 2026',5,'Прийшов на один дзвінок, а залишився до вечора. Дуже тихо, кава добра, розетка біля кожного місця.'],
+ ['Олена','30 жов 2026',4,'Затишно і чисто. Єдине, хотілося б більше місць біля вікна.'],
+ ['Максим','18 жов 2026',2,'Того дня Wi-Fi кілька разів зникав, а сусіди голосно розмовляли. Сподіваюся, це був виняток.'],
+ ['Ірина','9 жов 2026',5,'Переговорну забронювала за 5 хвилин через застосунок. Все як на фото.'],
+ ['Назар','1 жов 2026',4,'Хороший простір для навчання. Трохи прохолодно, тож беріть светр.'],
+ ['Карина','10 вер 2025',4,'Коворкінг відповідає опису та фото. Я в захваті від оформлення і рада, що знайшла таке місце. Wi-Fi швидкий, розетки біля кожного столу, а на рецепції варять дуже смачну каву.',1],
+ ['Карина','12 вер 2025',5,'Чудове місце для роботи та навчання. Тихо, зручні крісла, і можна сидіти весь день без додаткових замовлень.',1],
+ ['Олег','3 вер 2025',5,'Працюю тут уже місяць. Переговорну можна забронювати на годину, усе чисто й акуратно.'],
+ ['Марта','28 сер 2025',5,'Найкраще місце в місті для дзвінків: є окремі кабінки, і ніхто не заважає. Адміністратор допоміг налаштувати принтер.'],
+ ['Андрій','20 сер 2025',5,'Гарний інтер’єр і стабільний інтернет. Увечері буває людно, тож раджу приходити зранку.'],
+ ['Софія','14 сер 2025',5,'Прийшла з собакою, і нас зустріли з мискою води. Дуже приємна атмосфера.'],
+ ['Іван','2 сер 2025',3,'Загалом добре, але біля вікна було прохолодно. Попросив плед, і мені його одразу принесли.'],
+ ['Юлія','25 лип 2025',5,'Зручно, що працює без ліміту часу. Провела тут цілий день і підготувалася до іспиту.']];
+const MON={'січ':1,'лют':2,'бер':3,'кві':4,'тра':5,'чер':6,'лип':7,'сер':8,'вер':9,'жов':10,'лис':11,'гру':12};
+const revDate=d=>{const [dd,m,y]=d.split(' ');return +y*10000+MON[m.slice(0,3)]*100+ +dd};
+V.forEach(v=>{const n=v.id===8?REV.length:4+(v.id*5)%5;const off=(v.id*3)%REV.length;v.reviews=Array.from({length:n},(_,i)=>REV[(off+i)%REV.length]);
+  if(v.id===8)v.reviews=REV.slice();
+  v.rating=Math.round(v.reviews.reduce((s,r)=>s+r[2],0)/v.reviews.length*10)/10;
+  [v.addr,v.desc]=INFO[v.id];v.photos=[v.img,...['p1c','p2c','p3c','p4c'].filter(x=>x!==v.img)];
+  v.price={1:80,2:100,3:90,4:0,5:0,6:0,7:200,8:120}[v.id];
+  const [o,c]=v.hours.split('–').map(t=>+t.slice(0,2));v.open=o;v.close=c;
+  v.kinds=v.type==='Кав\u2019ярня'||v.type==='Лаунж-простір'?[['table','Столик','cup',0,1,6,true]]:
+    v.type==='Бібліотека'?[['desk','Місце в читальні','desk',0,1,1,false]]:
+    [['desk','Робоче місце','desk',v.price,1,4,false],...(v.cond.includes('meeting')?[['meet','Переговорна','door',v.price*3,2,8,true]]:[])]});
+V.find(v=>v.id===1).reviews.unshift(['Дана Коваль','2 лис 2026',5,'Дуже зручно працювати зранку: тихо, багато місць біля розеток і смачна кава.',0,true]);
+V.forEach(v=>{v.rating=Math.round(v.reviews.reduce((s,r)=>s+r[2],0)/v.reviews.length*10)/10});
+const liked=new Set([1,2,8]);
+
+/* ---------- filters ---------- */
+const G=[
+ {k:'sort',t:'Сортування',single:true,opts:[['near','Поряд зі мною'],['rating','За рейтингом'],['rel','Релевантність']],def:['near']},
+ {k:'type',t:'Тип простору',all:true,opts:[['Кав’ярня','Кав’ярня'],['Коворкінг','Коворкінг'],['Бібліотека','Бібліотека'],['Лаунж-простір','Лаунж-простір'],['Бізнес центр','Бізнес центр']]},
+ {k:'cond',t:'Умови',all:true,opts:[['wifi','Wi-Fi'],['sockets','Розетки'],['comfort','Комфортні місця'],['meeting','Переговорні'],['pet','Pet-friendly'],['power','Резервне живлення']]},
+ {k:'food',t:'Їжа та напої',all:true,opts:[['vegan','Веганське меню'],['vegetarian','Вегетаріанське меню'],['regular','Звичайне меню'],['snacks','Перекуси (батончики, бутильована вода)']]},
+ {k:'rating',t:'Рейтинг',single:true,opts:[['1','1'],['2','2'],['3','3'],['4','4'],['5','5']],star:true,def:[]},
+ {k:'extra',t:'Додаткові умови',all:true,opts:[['laptop','Перебування з ноутбуком'],['ver','Тільки перевірені простори']]}
+];
+const blank=()=>({sort:['near'],type:[],cond:[],food:[],rating:[],extra:[]});
+let F=blank(), D=blank(), query='';
+const label=(g,v)=>{const o=G.find(x=>x.k===g).opts.find(o=>o[0]===v);return g==='rating'?'від '+o[1]+' ★':o[1]};
+function match(v,f,q){
+  if(q){const s=q.toLowerCase().trim();if(s&&!(v.name.toLowerCase().includes(s)||v.type.toLowerCase().includes(s)))return false}
+  if(f.type.length&&!f.type.includes(v.type))return false;
+  if(f.cond.some(c=>!v.cond.includes(c)))return false;
+  if(f.food.some(c=>!v.food.includes(c)))return false;
+  if(f.rating.length&&v.rating<+f.rating[0])return false;
+  if(f.extra.includes('laptop')&&!v.laptop)return false;
+  if(f.extra.includes('ver')&&!v.ver)return false;
+  return true;
+}
+function list(f,q){
+  const r=V.filter(v=>match(v,f,q));
+  const s=f.sort[0];
+  r.sort((a,b)=>s==='rating'?b.rating-a.rating:s==='near'?a.dist-b.dist:0);
+  return r;
+}
+const plural=n=>{const m10=n%10,m100=n%100;if(m10===1&&m100!==11)return'заклад';if(m10>=2&&m10<=4&&(m100<12||m100>14))return'заклади';return'закладів'};
+const pl=(n,a,b,c)=>{const m10=n%10,m100=n%100;return m10===1&&m100!==11?a:m10>=2&&m10<=4&&(m100<12||m100>14)?b:c};
+const activeCount=f=>['type','cond','food','rating','extra'].reduce((s,k)=>s+f[k].length,0);
+
+/* ---------- cards ---------- */
+function card(v,compact){
+  const tags=v.tags.map(t=>`<span>${I[TAG[t][0]]}${TAG[t][1]}</span>`).join('');
+  return `<article class="card" data-v="${v.id}" tabindex="0" aria-label="${v.name}, відкрити сторінку закладу">
+   <div class="ph"><img src="img/${v.img}.jpg" alt="${v.name}, інтер'єр" loading="lazy" style="object-position:${v.pos}">
+    <span class="rate">${I.star}${v.rating.toFixed(1)}</span>
+    <button class="heart" type="button" data-like="${v.id}" aria-pressed="${liked.has(v.id)}" aria-label="Додати в обране">${I.heart}</button>
+    ${compact&&v.ver?`<span class="ver">${I.check}Перевірено</span>`:''}
+    <span class="pdots"><i></i><i></i><i></i></span></div>
+   <div class="cbody"><div class="crow"><b>${v.name}</b><span>${v.hours}</span></div>
+    <div class="crow sm"><em>${v.type}</em><span class="city">${I.pin}Львів · ${v.dist.toString().replace('.',',')} км</span></div>
+    <div class="tags">${tags}</div></div></article>`;
+}
+
+/* ---------- routing ---------- */
+const SCREENS=[['onboarding','Онбординг','1–3'],['location','Місцезнаходження',''],['welcome','Вітання',''],['login','Вхід',''],['sms','Код з SMS',''],['signup','Реєстрація',''],['confirm','Підтвердження пошти',''],['search','Пошук',''],['results','Результати і мапа',''],['filter','Фільтр',''],['map','Мапа',''],['fav','Обране',''],['venue','Сторінка закладу',''],['rsort','Сортування відгуків',''],['profile','Профіль',''],['editProfile','',''],['notifications','',''],['settings','',''],['security','',''],['password','',''],['permissions','',''],['help','',''],['bookings','',''],['bkDetail','',''],['myReviews','',''],['book','',''],['booked','',''],['review','','']];
+const GROUPS={onboarding:'Перший запуск',login:'Авторизація',search:'Пошук',map:'Вкладки',venue:'Заклад'};
+const flow=$('#flow');
+if(flow)flow.innerHTML=SCREENS.map(([k,t,n])=>(GROUPS[k]?`<small>${GROUPS[k]}</small>`:'')+`<button type="button" data-jump="${k}">${t}<span>${n}</span></button>`).join('');
+let cur=null, stack=[];
+function show(name,dir){
+  if(name==='filter'){ if(!['results','search','map'].includes(cur)){show('results',dir)} openSheet(); return }
+  if(name==='rsort'){ if(cur!=='venue'){openVenue(curV||8,true)} openSort(); return }
+  closeSheet(true);closeSort(true);closeG(true);closePromo(true);
+  const next=document.querySelector(`.scr[data-s="${name}"]`); if(!next)return;
+  const prev=cur&&document.querySelector(`.scr[data-s="${cur}"]`);
+  if(prev&&prev!==next)prev.hidden=true;
+  next.hidden=false;
+  if(dir){next.classList.add(dir==='back'?'enter-l':'enter-r');requestAnimationFrame(()=>requestAnimationFrame(()=>next.classList.remove('enter-l','enter-r')))}
+  cur=name; onShow[name]&&onShow[name](); paintTabs(); paintDots();
+  $$('[data-jump]').forEach(b=>b.setAttribute('aria-current',b.dataset.jump===name));
+  try{history.replaceState(null,'','#'+name)}catch(e){}
+}
+function go(name){ if(cur&&cur!==name)stack.push(cur); show(name,'fwd') }
+const PARENT={results:'search',venue:'search',map:'search',fav:'search',profile:'search',notifications:'profile',settings:'profile',security:'profile',password:'security',permissions:'profile',help:'profile',editProfile:'profile',bookings:'profile',bkDetail:'bookings',myReviews:'profile',book:'venue',booked:'search',review:'venue',login:'welcome',signup:'welcome',sms:'login',confirm:'signup',location:'onboarding',welcome:'location'};
+function back(){ if(cur==='onboarding'&&ob>0){setOb(ob-1);return} const p=stack.pop()||PARENT[cur]; if(p)show(p,'back') }
+function enterApp(){stack=[];lastTab='home';show('search','fwd')}
+function goHome(){stack=[];lastTab='home';if(cur==='search'){const sc=document.querySelector('[data-s="search"] .scroll');sc&&sc.scrollTo({top:0,behavior:'smooth'})}else show('search','back')}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button,[data-go]'); if(!t)return;
+  if(t.dataset.go){e.preventDefault();go(t.dataset.go)}
+  else if(t.hasAttribute('data-back'))back();
+  else if(t.dataset.jump){stack=[];const j=t.dataset.jump;if(j==='onboarding')setOb(0);if((j==='venue'||j==='rsort')&&!curV)curV=8;show(j,'fwd')}
+  else if(t.hasAttribute('data-enter'))enterApp();
+  else if(t.hasAttribute('data-home'))goHome();
+  else if(t.dataset.toast)toast(t.dataset.toast);
+  else if(t.dataset.like){const id=+t.dataset.like;liked.has(id)?liked.delete(id):liked.add(id);$$(`[data-like="${id}"]`).forEach(b=>b.setAttribute('aria-pressed',liked.has(id)));toast(liked.has(id)?'Додано в обране':'Прибрано з обраного');if(cur==='fav')renderFav()}
+  else if(t.hasAttribute('data-filter'))openSheet();
+  else if(t.dataset.eye){const i=$('#'+t.dataset.eye);const s=i.type==='password';i.type=s?'text':'password';t.innerHTML=s?I.eye:I.eyeOff;t.setAttribute('aria-label',s?'Сховати пароль':'Показати пароль')}
+});
+document.addEventListener('click',e=>{const c=e.target.closest('.card');if(c&&!e.target.closest('button'))openVenue(+c.dataset.v)});
+document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('.card')){e.preventDefault();openVenue(+e.target.dataset.v)}});
+/* tab bar */
+let lastTab='home';
+const TABS=[['home','home','Головна'],['map','map','Карта'],['fav','heart','Обране'],['profile','user','Профіль']];
+function paintTabs(){$$('[data-tabbar]').forEach(n=>{const a=n.dataset.tabbar==='auto'?lastTab:n.dataset.tabbar;n.innerHTML=TABS.map(([k,ic,t])=>`<button type="button" data-tabto="${k}" aria-label="${t}"${k===a?' aria-current="page"':''}>${I[ic]}<span class="tl">${t}</span></button>`).join('')})}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-tabto]');if(!b)return;const k=b.dataset.tabto;
+  if(k==='home'){goHome();return}
+  lastTab=k;if(k===cur){const sc=document.querySelector(`[data-s="${k}"] .scroll`);sc&&sc.scrollTo({top:0,behavior:'smooth'});return}stack=[];show(k,'fwd')});
+if($('#restart'))$('#restart').onclick=()=>{stack=[];F=blank();query='';lastTab='home';setOb(0);show('onboarding','fwd')};
+
+let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2000)}
+
+/* progress bars */
+$$('[data-prog]').forEach(p=>{p.innerHTML='<i></i><i></i><i></i><i></i><i></i>';[...p.children].forEach((i,n)=>i.classList.toggle('on',n<+p.dataset.prog))});
+
+/* ---------- onboarding ---------- */
+const OB=[
+ ['ob1','Легкий пошук просторів','Знаходь заклади для роботи, навчання чи відпочинку поруч із тобою — швидко та без зайвих кроків.'],
+ ['ob2','Обирай за власними потребами','Стабільний Wi-Fi, веганське меню, pet-friendly, кімнати для переговорів.'],
+ ['ob3','Шукай локації поряд з домом','Зручна мапа, щоб бачити заклади навколо себе, оцінювати та обирати найзручніше місце.']];
+let ob=0;
+function setOb(n){ob=n;const [img,t,p]=OB[n];$('#obImg').src='img/'+img+'.webp';$('#obTitle').textContent=t;$('#obText').textContent=p;
+  [...$('#obDots').children].forEach((d,i)=>d.classList.toggle('on',i===n));
+  const pr=document.querySelector('.scr[data-s="onboarding"] .prog');[...pr.children].forEach((i,k)=>i.classList.toggle('on',k<=n));
+  $('#obBack').style.visibility=n?'visible':'hidden';
+  const box=$('#ob');box.classList.remove('fade');void box.offsetWidth;}
+$('#obNext').onclick=()=>{ob<2?setOb(ob+1):go('location')};
+let sx=null;$('#ob').addEventListener('pointerdown',e=>sx=e.clientX);$('#ob').addEventListener('pointerup',e=>{if(sx==null)return;const d=e.clientX-sx;sx=null;if(d<-50)$('#obNext').click();else if(d>50&&ob>0)setOb(ob-1)});
+
+/* ---------- location ---------- */
+const PLACES=[['Площа Ринок','Галицький район, Львів',47,52],['Стрийський парк','Франківський район, Львів',32,72],['Сихів','Сихівський район, Львів',72,90],['Личаків','Личаківський район, Львів',74,46],['Політехніка','Головний корпус, Львів',41,61]];
+const li=$('#locInput'),ls=$('#locSugg');
+function placeMe(x,y,label){$('#locMap').querySelectorAll('.me,.me-label').forEach(e=>e.remove());const m=document.createElement('span');m.className='me';m.style.left=x+'%';m.style.top=y+'%';const l=document.createElement('span');l.className='me-label';l.textContent=label;l.style.left=x+'%';l.style.top=y+'%';$('#locMap').append(m,l)}
+li.addEventListener('input',()=>{const q=li.value.toLowerCase().trim();const r=PLACES.filter(p=>!q||p[0].toLowerCase().includes(q)||p[1].toLowerCase().includes(q));ls.innerHTML=r.length?r.map((p,i)=>`<button type="button" data-p="${PLACES.indexOf(p)}">${I.pin}<span>${p[0]}<small>${p[1]}</small></span></button>`).join(''):'<button type="button" disabled>Нічого не знайдено</button>';ls.hidden=false});
+li.addEventListener('focus',()=>li.dispatchEvent(new Event('input')));
+ls.addEventListener('click',e=>{const b=e.target.closest('[data-p]');if(!b)return;const p=PLACES[+b.dataset.p];li.value=p[0];ls.hidden=true;placeMe(p[2],p[3],p[0])});
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('#locSugg')&&e.target!==li)ls.hidden=true});
+$('#locate').onclick=()=>{li.value='Моє місцезнаходження';placeMe(47,47,'Ви тут');toast('Місцезнаходження визначено')};
+
+/* ---------- login ---------- */
+let tab='email';
+$$('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;$$('[data-tab]').forEach(x=>x.setAttribute('aria-selected',x===b));$$('[data-pane]').forEach(p=>p.hidden=p.dataset.pane!==tab)});
+const okEmail=v=>/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim());
+const digits=v=>v.replace(/\D/g,'');
+function err(id,msg){$('#'+id+'Err').textContent=msg||'';$('#'+id).closest('.inp').classList.toggle('bad',!!msg);return !msg}
+function fmtPhone(inp){inp.addEventListener('input',()=>{const d=digits(inp.value).slice(0,9);inp.value=[d.slice(0,2),d.slice(2,5),d.slice(5,7),d.slice(7,9)].filter(Boolean).join(' ')})}
+fmtPhone($('#lPhone'));fmtPhone($('#sPhone'));
+$('#loginForm').addEventListener('submit',e=>{e.preventDefault();let ok=true;
+  if(tab==='email')ok=err('lEmail',okEmail($('#lEmail').value)?'':'Введіть пошту у форматі name@mail.com')&&ok;
+  else ok=err('lPhone',digits($('#lPhone').value).length===9?'':'Номер має містити 9 цифр після +380')&&ok;
+  ok=err('lPass',$('#lPass').value.length>=6?'':'Пароль має містити щонайменше 6 символів')&&ok;
+  if(!ok)return;
+  if(tab==='phone'){$('#smsPhone').textContent='+380 '+$('#lPhone').value;go('sms')}else enterApp()});
+['lEmail','lPhone','lPass','sName','sPhone','sEmail','sPass'].forEach(id=>$('#'+id).addEventListener('input',()=>err(id,'')));
+
+/* ---------- sms ---------- */
+const os=$$('#otp input');
+function otpState(){os.forEach(o=>o.classList.toggle('full',!!o.value));$('#smsGo').disabled=os.some(o=>!o.value)}
+os.forEach((o,i)=>{
+  o.addEventListener('input',()=>{o.value=digits(o.value).slice(-1);if(o.value&&i<3)os[i+1].focus();otpState()});
+  o.addEventListener('keydown',e=>{if(e.key==='Backspace'&&!o.value&&i>0){os[i-1].focus();os[i-1].value='';otpState()}});
+  o.addEventListener('paste',e=>{const d=digits(e.clipboardData.getData('text')).slice(0,4);if(!d)return;e.preventDefault();d.split('').forEach((c,k)=>os[k]&&(os[k].value=c));os[Math.min(d.length,3)].focus();otpState()});
+});
+let rt;function startResend(){let s=30;const b=$('#resend');b.disabled=true;clearInterval(rt);const tick=()=>{b.textContent=s>0?`Надіслати знову через 0:${String(s).padStart(2,'0')}`:'Надіслати знову';if(s<=0){b.disabled=false;clearInterval(rt)}s--};tick();rt=setInterval(tick,1000)}
+$('#resend').onclick=()=>{toast('Новий код надіслано');startResend()};
+$('#smsGo').onclick=()=>enterApp();
+
+/* ---------- signup ---------- */
+$('#suForm').addEventListener('submit',e=>{e.preventDefault();let ok=true;
+  ok=err('sName',$('#sName').value.trim().length>=2?'':'Вкажіть ім’я')&&ok;
+  ok=err('sPhone',digits($('#sPhone').value).length===9?'':'Номер має містити 9 цифр після +380')&&ok;
+  ok=err('sEmail',okEmail($('#sEmail').value)?'':'Введіть пошту у форматі name@mail.com')&&ok;
+  ok=err('sPass',$('#sPass').value.length>=8?'':'Пароль має містити щонайменше 8 символів')&&ok;
+  if(!ok)return;U.name=$('#sName').value.trim();U.email=$('#sEmail').value.trim();U.phone=$('#sPhone').value;$('#cfEmail').textContent=U.email;go('confirm')});
+
+/* ---------- search home ---------- */
+const onShow={};
+onShow.onboarding=()=>{};
+onShow.sms=()=>{os.forEach(o=>o.value='');otpState();startResend();setTimeout(()=>os[0].focus(),350)};
+let homeType='all',homeC=[],district='Шевченківський';
+const DISTRICTS=['Шевченківський','Галицький','Франківський','Личаківський','Залізничний','Сихівський'];
+function renderHome(){
+  $('#homeTabs').innerHTML=FT.slice(0,4).map(([k,t])=>`<button type="button" role="tab" data-ht="${k}" aria-selected="${homeType===k}">${t}</button>`).join('');
+  $('#homeChips').innerHTML=FC.map(([k,ic,t])=>`<button type="button" data-hc="${k}" aria-pressed="${k==='all'?!homeC.length:homeC.includes(k)}"><img src="img/${ic}.webp" alt="">${t}</button>`).join('');
+  const ok=v=>(homeType==='all'||v.type===homeType)&&homeC.every(c=>c==='laptop'?v.laptop:v.cond.includes(c));
+  const all=V.filter(ok);
+  $('#homeCount').textContent=all.length+' '+pl(all.length,'простір','простори','просторів');
+  const rec=[...all].sort((a,b)=>b.rating-a.rating||b.reviews.length-a.reviews.length).slice(0,5);
+  const near=[...all].sort((a,b)=>a.dist-b.dist).slice(0,5);
+  const seen=S.history?SEEN.map(id=>V.find(v=>v.id===id)).filter(ok):[];
+  const sec=(t,l)=>l.length?`<div class="sect">${t}</div><div class="hscroll">${l.map(v=>card(v,true)).join('')}</div>`:'';
+  $('#homeSects').innerHTML=all.length?sec('Рекомендовані заклади',rec)+sec(P.geo?'Заклади поруч':'Поруч із центром',near)+sec('Переглянуті заклади',seen):
+    `<div class="empty"><b>Немає закладів з такими умовами</b>Спробуйте іншу категорію або приберіть фільтри.<br><button class="btn" type="button" id="homeReset">Показати всі</button></div>`;
+}
+onShow.search=()=>{lastTab='home';$('#geoWarn').hidden=P.geo;$('#homeQ').value='';$('#hDistrict').textContent='Львів, '+district+' р.';
+  renderPromos();renderHome()};
+$('#homeTabs').addEventListener('click',e=>{const b=e.target.closest('[data-ht]');if(b){homeType=b.dataset.ht;renderHome()}});
+$('#homeChips').addEventListener('click',e=>{const b=e.target.closest('[data-hc]');if(!b)return;const k=b.dataset.hc;homeC=k==='all'?[]:homeC.includes(k)?homeC.filter(x=>x!==k):[...homeC,k];renderHome()});
+$('#homeSects').addEventListener('click',e=>{if(e.target.id==='homeReset'){homeType='all';homeC=[];renderHome()}});
+/* promo banners */
+const PROMOS=[
+ {v:3,img:'banner',tag:'WorkSpace',t:'Оновлення закладу',sub:'Актуальна інформація вже доступна',chip:'hours',
+  desc:'WorkSpace оновив графік і правила. Тепер заклад працює щодня з 09:00 до 20:00, а переговорну можна забронювати прямо в застосунку.',
+  cond:['Новий графік: щодня з 09:00 до 20:00','Переговорна на 6 людей — 270 грн/год','Чай і вода безкоштовно для гостей з бронюванням'],when:'Діє з 18 листопада',remind:'завтра о 09:00'},
+ {v:4,img:'p3c',tag:'Кав’ярня «Зерно»',t:'−20% на сніданки',sub:'Для тих, хто працює з ноутбуком',chip:'до 30 листопада',
+  desc:'Зранку в «Зерні» тихо, а сніданки на 20% дешевші. Знижка діє для гостей, які залишаються працювати.',
+  cond:['Пн–Пт з 08:00 до 11:00','На всі сніданки з меню','Не сумується з іншими акціями','Покажіть цей банер офіціанту'],when:'До 30 листопада',remind:'завтра о 08:00'},
+ {v:2,img:'p2c',tag:'Link Coworking',t:'Денний абонемент −20%',sub:'640 грн замість 800',chip:'до неділі',
+  desc:'Повний день у Link Coworking зі знижкою 20%, а година в переговорній — у подарунок.',
+  cond:['Діє до неділі включно','Оплата на місці або в застосунку','1 година в переговорній безкоштовно'],when:'До неділі',remind:'у суботу о 10:00'},
+ {v:8,img:'p4c',tag:'Pixel Hub',t:'Кабінки для дзвінків',sub:'Тиша для онлайн-зустрічей',chip:'Новинка',
+  desc:'У Pixel Hub з’явилися 4 звукоізольовані кабінки для дзвінків і мітингів. Їх можна займати до години без бронювання.',
+  cond:['Доступно для всіх гостей коворкінгу','До 60 хвилин без бронювання','Є навушники й підставка для ноутбука'],when:'Доступно вже зараз',remind:'завтра о 10:00'}];
+const REMIND=new Set();let prCur=0;
+function renderPromos(){
+  $('#promos').innerHTML=PROMOS.map((p,i)=>{const v=V.find(x=>x.id===p.v);
+    const chip=p.chip==='hours'?`<span class="po">${I.clock}${hh(v.open)}</span><span>${hh(v.close)}</span>`:`<span class="po">${I.clock}${p.chip}</span>`;
+    return `<button type="button" class="promo" data-promo="${i}" aria-label="${p.tag}: ${p.t}. Детальніше"><span class="pt"><span class="ppill">${p.tag}</span><b>${p.t}</b><small>${p.sub}</small><span class="phrs">${chip}</span></span><img src="img/${p.img}.jpg" alt="" draggable="false"></button>`}).join('');
+  $('#promoDots').innerHTML=PROMOS.map((_,i)=>`<button type="button" data-pd="${i}" aria-label="Банер ${i+1}" aria-current="${i===0}"></button>`).join('');
+}
+$('#promos').addEventListener('scroll',()=>{const t=$('#promos');const w=t.firstElementChild?t.firstElementChild.offsetWidth+12:1;const i=Math.round(t.scrollLeft/w);$$('#promoDots button').forEach((d,k)=>d.setAttribute('aria-current',k===i))},{passive:true});
+$('#promoDots').addEventListener('click',e=>{const d=e.target.closest('[data-pd]');if(!d)return;const t=$('#promos');t.scrollTo({left:+d.dataset.pd*(t.firstElementChild.offsetWidth+12),behavior:'smooth'})});
+(()=>{const t=$('#promos');let sx=0,sl=0,down=false,moved=false;
+  t.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'||e.button!==0)return;down=true;moved=false;sx=e.clientX;sl=t.scrollLeft});
+  t.addEventListener('pointermove',e=>{if(!down)return;const dx=e.clientX-sx;if(Math.abs(dx)>5){moved=true;t.classList.add('drag')}if(moved)t.scrollLeft=sl-dx});
+  const up=e=>{if(!down)return;down=false;if(!moved)return;t.classList.remove('drag');const w=t.firstElementChild.offsetWidth+12;let i=Math.round(sl/w);const dx=e.clientX-sx;if(dx<-40)i++;else if(dx>40)i--;i=Math.max(0,Math.min(PROMOS.length-1,i));t.scrollTo({left:i*w,behavior:'smooth'})};
+  t.addEventListener('pointerup',up);t.addEventListener('pointerleave',up);
+  t.addEventListener('click',e=>{if(moved){e.stopPropagation();moved=false;return}const b=e.target.closest('[data-promo]');if(b)openPromo(+b.dataset.promo)},true);})();
+const ps=$('#promoSheet'),sc4=$('#scrim4');
+function paintRemind(){const on=REMIND.has(prCur),b=$('#prRemind');b.setAttribute('aria-pressed',on);b.setAttribute('aria-label',on?'Скасувати нагадування':'Нагадати пізніше')}
+function openPromo(i){prCur=i;const p=PROMOS[i];$('#prImg').src='img/'+p.img+'.jpg';$('#prVenue').textContent=p.tag;$('#prTitle').textContent=p.t;$('#prDesc').textContent=p.desc;
+  $('#prWhen').innerHTML=I.cal.replace(/20/g,'15')+p.when;$('#prCond').innerHTML=p.cond.map(c=>`<li>${I.check}<span>${c}</span></li>`).join('');paintRemind();
+  sc4.hidden=false;ps.hidden=false;ps.querySelector('.sc').scrollTop=0;requestAnimationFrame(()=>requestAnimationFrame(()=>{sc4.classList.add('show');ps.classList.add('show')}));setTimeout(()=>$('#prX').focus(),300)}
+function closePromo(instant){if(ps.hidden)return;sc4.classList.remove('show');ps.classList.remove('show');const done=()=>{sc4.hidden=true;ps.hidden=true};instant?done():setTimeout(done,320)}
+$('#prX').onclick=sc4.onclick=()=>closePromo();
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!ps.hidden)closePromo()});
+$('#prGo').onclick=()=>{const v=PROMOS[prCur].v;closePromo(true);openVenue(v)};
+$('#prRemind').onclick=()=>{const p=PROMOS[prCur];
+  const set=()=>{REMIND.add(prCur);paintRemind();NT.unshift({id:Date.now(),ic:'bell',t:'Нагадування: '+p.t,x:`${p.tag}. Нагадаємо ${p.remind}.`,when:'щойно',read:true,v:p.v});toast('Нагадаємо '+p.remind)};
+  if(REMIND.has(prCur)){REMIND.delete(prCur);paintRemind();toast('Нагадування скасовано');return}
+  if(!P.notif){askPerm('notif','Дозволити сповіщення?','Щоб нагадати про цю пропозицію, SpaceHub потрібен дозвіл надсилати сповіщення.',set);return}
+  set()};
+$('#hPlace').onclick=()=>choice('Район пошуку',DISTRICTS,district,v=>{district=v;$('#hDistrict').textContent='Львів, '+v+' р.';toast('Шукаємо поруч: '+v+' район')});
+$('#homeForm').addEventListener('submit',e=>{e.preventDefault();query=$('#homeQ').value;go('results')});
+
+/* ---------- results ---------- */
+let view='list', sel=null;
+const pinsHtml=(r,selId,attr)=>r.map(v=>`<button class="mpin" type="button" ${attr}="${v.id}" style="left:${v.x}%;top:${v.y}%" aria-pressed="${selId===v.id}" aria-label="${v.name}">${I.mpin}</button>`).join('');
+function renderResults(){
+  const r=list(F,query);
+  $('#resCount').textContent=r.length+' '+plural(r.length);
+  $('#rsCount').textContent='Знайдено '+r.length+' '+plural(r.length);
+  const n=activeCount(F);
+  $('#resList').innerHTML=r.length?r.map(v=>card(v,false)).join(''):`<div class="empty"><b>Нічого не знайшли</b>${query.trim()?`За запитом «${query.trim()}»`:'За цими умовами'}${n?' з вибраними фільтрами':''} закладів немає.${n?'<br><button class="btn" type="button" id="clearF">Скинути фільтри</button>':''}</div>`;
+  const fc=$('#fcount');fc.hidden=!n;fc.textContent=n;
+  if(!r.some(v=>v.id===sel))sel=null;
+  $('#pins').innerHTML=pinsHtml(r,sel,'data-pin');
+  $$('#resList .card').forEach(c=>c.classList.toggle('hl',+c.dataset.v===sel));
+}
+onShow.results=()=>{$('#resQ').value=query;renderResults();setView(view)};
+$('#resForm').addEventListener('submit',e=>{e.preventDefault();query=$('#resQ').value;renderResults()});
+$('#resQ').addEventListener('input',()=>{query=$('#resQ').value;renderResults()});
+$('#resList').addEventListener('click',e=>{if(e.target.id==='clearF'){F=blank();renderResults()}});
+$('#pins').addEventListener('click',e=>{const p=e.target.closest('[data-pin]');if(!p)return;sel=+p.dataset.pin;renderResults();const c=$(`#resList .card[data-v="${sel}"]`);if(c)$('#resScroll').scrollTo({top:c.offsetTop-$('#resScroll').offsetTop-10,behavior:'smooth'})});
+function setView(v){view=v;$$('[data-view]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.view===v));$('#resMap').hidden=v!=='map';$('#rsHead').hidden=v!=='map';$('#resScroll').scrollTop=0}
+$$('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view));
+
+/* ---------- full map ---------- */
+let fsel=null;
+function renderMap(){
+  const r=list(F,query);if(!r.some(v=>v.id===fsel))fsel=null;
+  $('#fpins').innerHTML=pinsHtml(r,fsel,'data-fpin');
+  const v=V.find(x=>x.id===fsel);const fc=$('#fcard');fc.hidden=!v;
+  fc.innerHTML=v?card(v,false)+`<button class="cx" type="button" id="fclose" aria-label="Закрити картку">${I.xs.replace(/12/g,'16')}</button>`:'';
+  const n=activeCount(F);const c2=$('#fcount2');c2.hidden=!n;c2.textContent=n;
+}
+onShow.map=()=>{lastTab='map';$('#mapQ').value=query;if(fsel==null)fsel=(list(F,query)[0]||{}).id??null;renderMap()};
+$('#fpins').addEventListener('click',e=>{const p=e.target.closest('[data-fpin]');if(p){fsel=+p.dataset.fpin;renderMap()}});
+$('#fcard').addEventListener('click',e=>{if(e.target.closest('#fclose')){fsel=null;renderMap()}});
+$('#mapForm').addEventListener('submit',e=>{e.preventDefault();query=$('#mapQ').value;renderMap()});
+$('#mapQ').addEventListener('input',()=>{query=$('#mapQ').value;renderMap()});
+$('#mapLocate').onclick=()=>{const r=list(F,query).sort((a,b)=>a.dist-b.dist);fsel=r[0]?r[0].id:null;renderMap();toast(r[0]?'Найближчий заклад: '+r[0].name:'Поруч немає закладів')};
+
+/* ---------- venue ---------- */
+let curV=null, rFilter='all', rSort='new', rShown=3, condOpen=false;
+const SORTS=[['new','Найновіші','Нові'],['rel','Найбільш релевантні','Релевантні'],['high','З найвищою оцінкою','Найвищі'],['low','З найнижчою оцінкою','Найнижчі']];
+const RLABEL={5:'Відмінно',4:'Добре',3:'Нормально',2:'Погано',1:'Жахливо'};
+const starsHtml=(x)=>Array.from({length:5},(_,i)=>`<span class="${i<Math.round(x)?'':'off'}">${I.star}</span>`).join('');
+function openVenue(id,noStack){curV=id;rFilter='all';rSort='new';rShown=3;condOpen=false;
+  if(S.history){SEEN=[id,...SEEN.filter(x=>x!==id)].slice(0,6)}
+  if(noStack){stack=[];show('venue','fwd')}else go('venue')}
+function renderReviews(){
+  const v=V.find(x=>x.id===curV);
+  let r=v.reviews.map((x,i)=>({x,i})).filter(o=>rFilter==='all'||o.x[2]===+rFilter);
+  r.sort((a,b)=>rSort==='new'?revDate(b.x[1])-revDate(a.x[1]):rSort==='high'?b.x[2]-a.x[2]:rSort==='low'?a.x[2]-b.x[2]:b.x[3].length-a.x[3].length);
+  const cnt=k=>k==='all'?v.reviews.length:v.reviews.filter(x=>x[2]===+k).length;
+  $('#rFil').innerHTML=`<div class="rcs" role="group" aria-label="Фільтр за оцінкою">`+['all','5','4','3','2','1'].map(k=>`<button type="button" class="rc" data-rf="${k}" aria-pressed="${rFilter===k}">${k==='all'?'Усі':k+I.star}<small>${cnt(k)}</small></button>`).join('')+`</div><button type="button" class="sortb" id="sortBtn">${I.sort}${SORTS.find(s=>s[0]===rSort)[2]}</button>`;
+  $$('#hBars button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.rf===rFilter));
+  const show=r.slice(0,rShown);
+  $('#vReviews').innerHTML=show.length?show.map(({x,i})=>revHtml(x,i)).join(''):`<div class="noreviews">${rFilter==='all'?'Поки немає відгуків. Будьте першими!':'Немає відгуків з оцінкою '+rFilter+' ★'}</div>`;
+  const mb=$('#vMore');mb.hidden=r.length<=rShown;mb.disabled=false;mb.textContent=`Завантажити більше відгуків (${r.length-rShown})`;
+}
+onShow.venue=()=>{
+  const v=V.find(x=>x.id===curV)||V[V.length-1];curV=v.id;
+  $('#vTrack').innerHTML=v.photos.map((p,i)=>`<img src="img/${p}.jpg" alt="${v.name}, фото ${i+1}" draggable="false" style="object-position:${i?'50% 50%':v.pos}">`).join('');$('#vTrack').scrollLeft=0;
+  $('#vDots').innerHTML=v.photos.map((_,i)=>`<i class="${i?'':'on'}" data-ph="${i}" role="button" aria-label="Фото ${i+1}"></i>`).join('');syncHero();
+  const now=new Date().getHours(),isOpen=now>=v.open&&now<v.close;
+  $('#vOpen').innerHTML=`${I.clock}<b class="${isOpen?'':'closed'}">${isOpen?'Відчинено':'Зачинено'}</b> · ${v.hours}`;
+  const k0=v.kinds[0];$('#vPriceL').textContent=k0[1];$('#vPrice').textContent=k0[3]?`від ${k0[3]} грн/год`:'Безкоштовно';
+  const lk=$('#vLike');lk.dataset.like=v.id;lk.setAttribute('aria-pressed',liked.has(v.id));lk.innerHTML=I.heart;
+  $('#vName').textContent=v.name;$('#vAddr').textContent='Львів, '+v.addr;$('#vDist').textContent=v.dist.toString().replace('.',',')+' км від центру міста';
+  $('#vStars').innerHTML=starsHtml(v.rating);$('#vAvg').textContent=v.rating.toFixed(1);
+  const n=v.reviews.length;$('#vRevLink').textContent=n+' '+pl(n,'відгук','відгуки','відгуків');
+  $('#vDesc').textContent=v.desc;
+  const conds=[...v.cond,...(v.tags.includes('nolimit')?['nolimit']:[])];
+  const vis=condOpen?conds:conds.slice(0,5);
+  $('#vConds').innerHTML=vis.map(c=>`<span>${I[COND[c][0]]}${COND[c][1]}</span>`).join('')+(conds.length>5?`<button class="link" type="button" id="condMore">${condOpen?'Згорнути':'Побачити більше'}</button>`:'');
+  const avg=v.reviews.reduce((s,r)=>s+r[2],0)/n;$('#hAvg').textContent=avg.toFixed(1).replace('.',',');$('#hStars').innerHTML=starsHtml(avg);$('#hCount').textContent=n+' '+pl(n,'відгук','відгуки','відгуків');
+  $('#hBars').innerHTML=[5,4,3,2,1].map(k=>{const c=v.reviews.filter(r=>r[2]===k).length;return `<button type="button" data-rf="${k}" aria-label="Показати відгуки з оцінкою ${k}"><span>${k}</span><i><b style="width:${c/n*100}%"></b></i><em>${c}</em></button>`}).join('');
+  $$('[data-tabbar]').forEach(t=>{if(t.closest('[data-s="venue"]'))t.dataset.tabbar=lastTab});paintTabs();
+  renderReviews();$('#vScroll').scrollTop=0;
+};
+function heroIdx(){const t=$('#vTrack');return Math.round(t.scrollLeft/Math.max(1,t.clientWidth))}
+function syncHero(){const t=$('#vTrack'),n=t.children.length,i=heroIdx();[...$('#vDots').children].forEach((d,k)=>d.classList.toggle('on',k===i));$('#hPrev').disabled=i<=0;$('#hNext').disabled=i>=n-1;$('#hCount2').textContent=(i+1)+' / '+n}
+function heroTo(i){const t=$('#vTrack');t.scrollTo({left:i*t.clientWidth,behavior:'smooth'})}
+$('#vTrack').addEventListener('scroll',syncHero,{passive:true});
+$('#hPrev').onclick=()=>heroTo(heroIdx()-1);$('#hNext').onclick=()=>heroTo(heroIdx()+1);
+$('#vDots').addEventListener('click',e=>{const d=e.target.closest('[data-ph]');if(d)heroTo(+d.dataset.ph)});
+(()=>{const t=$('#vTrack');let sx=0,sl=0,down=false,moved=false;
+  t.addEventListener('pointerdown',e=>{if(e.pointerType==='touch')return;down=true;moved=false;sx=e.clientX;sl=t.scrollLeft;t.classList.add('drag');t.setPointerCapture(e.pointerId)});
+  t.addEventListener('pointermove',e=>{if(!down)return;const dx=e.clientX-sx;if(Math.abs(dx)>3)moved=true;t.scrollLeft=sl-dx});
+  const up=e=>{if(!down)return;down=false;t.classList.remove('drag');const dx=e.clientX-sx;let i=Math.round(sl/t.clientWidth);if(dx<-40)i++;else if(dx>40)i--;heroTo(Math.max(0,Math.min(t.children.length-1,i)))};
+  t.addEventListener('pointerup',up);t.addEventListener('pointercancel',up);})();
+$('#hBars').addEventListener('click',e=>{const b=e.target.closest('[data-rf]');if(!b)return;rFilter=rFilter===b.dataset.rf?'all':b.dataset.rf;rShown=3;renderReviews()});
+$('#vBook').onclick=()=>openBook(curV);
+$('#vWrite').onclick=()=>openReview(curV);
+$('#vConds').addEventListener('click',e=>{if(e.target.id==='condMore'){condOpen=!condOpen;const st=$('#vScroll').scrollTop;onShow.venue();$('#vScroll').scrollTop=st}});
+$('#vRevLink').onclick=()=>{$('#vScroll').scrollTo({top:$('#vRevH').offsetTop-20,behavior:'smooth'})};
+$('#rFil').addEventListener('click',e=>{const b=e.target.closest('[data-rf]');if(b){rFilter=b.dataset.rf;rShown=3;renderReviews()}else if(e.target.closest('#sortBtn'))openSort()});
+$('#vReviews').addEventListener('click',e=>{const b=e.target.closest('[data-more]');if(!b)return;const p=$('#rt'+b.dataset.more);const open=p.classList.toggle('clamp');b.textContent=open?'Показати більше':'Згорнути'});
+$('#vMore').onclick=()=>{const b=$('#vMore');b.disabled=true;b.innerHTML='<span class="spin" aria-hidden="true"></span>Завантажуємо…';setTimeout(()=>{rShown+=3;renderReviews()},650)};
+function revHtml(x,i){const long=x[3].length>95;const nm=x[5]&&!S.showName?'Користувач SpaceHub':x[0];
+  const av=x[5]?(U.avatar?`<img class="av" src="${U.avatar}" alt="">`:`<span class="av" aria-hidden="true">${nm[0]}</span>`):x[4]?'<img class="av" src="img/av.jpg" alt="">':`<span class="av" aria-hidden="true">${x[0][0]}</span>`;
+  return `<div class="rev"><div class="rh">${av}<div><b>${nm}${x[5]?'<span class="mine">Ви</span>':''}</b><small>${x[1]}</small><span class="stars">${starsHtml(x[2])}</span><em>${RLABEL[x[2]]}</em></div></div><p${long?' class="clamp"':''} id="rt${i}">${x[3]}</p>${long?`<button class="link" type="button" data-more="${i}">Показати більше</button>`:''}${x[6]&&x[6].length?`<div class="rphotos">${x[6].map(s=>`<img src="${s}" alt="Фото до відгуку">`).join('')}</div>`:''}</div>`}
+
+/* review sort sheet */
+const ss=$('#sortSheet'),sc2=$('#scrim2');let rSortDraft='new';
+function openSort(){rSortDraft=rSort;$('#sortOpts').innerHTML=SORTS.map(([k,t])=>`<label class="radio"><input type="radio" name="rsort" value="${k}" ${k===rSortDraft?'checked':''}><i></i>${t}</label>`).join('');sc2.hidden=false;ss.hidden=false;requestAnimationFrame(()=>requestAnimationFrame(()=>{sc2.classList.add('show');ss.classList.add('show')}));$$('[data-jump]').forEach(b=>b.setAttribute('aria-current',b.dataset.jump==='rsort'));setTimeout(()=>{const c=$('#sortOpts input:checked');c&&c.focus()},300)}
+function closeSort(instant){if(ss.hidden)return;sc2.classList.remove('show');ss.classList.remove('show');const done=()=>{sc2.hidden=true;ss.hidden=true};instant?done():setTimeout(done,320);$$('[data-jump]').forEach(b=>b.setAttribute('aria-current',b.dataset.jump===cur))}
+$('#sortOpts').addEventListener('change',e=>{rSortDraft=e.target.value});
+$('#sortX').onclick=$('#sortCancel').onclick=sc2.onclick=()=>closeSort();
+$('#sortApply').onclick=()=>{rSort=rSortDraft;rShown=3;closeSort();renderReviews()};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!ss.hidden)closeSort()});
+
+/* ---------- favourites ---------- */
+let favType='all', favC=[];
+const FT=[['all','Всі заклади'],['Кав’ярня','Кав’ярні'],['Коворкінг','Коворкінги'],['Бібліотека','Бібліотеки'],['Лаунж-простір','Лаунжі']];
+const FC=[['all','i-all','Всі'],['wifi','i-wifi','Wi-Fi'],['sockets','i-plug','Розетки'],['laptop','i-laptop','Laptop friendly'],['comfort','i-sofa','Комфорт']];
+function renderFav(){
+  $('#favTabs').innerHTML=FT.map(([k,t])=>`<button type="button" role="tab" data-ft="${k}" aria-selected="${favType===k}">${t}</button>`).join('');
+  $('#favChips').innerHTML=FC.map(([k,ic,t])=>`<button type="button" data-fc="${k}" aria-pressed="${k==='all'?!favC.length:favC.includes(k)}"><img src="img/${ic}.webp" alt="">${t}</button>`).join('');
+  const q=$('#favQ').value.toLowerCase().trim();
+  const r=V.filter(v=>liked.has(v.id)&&(favType==='all'||v.type===favType)&&(!q||v.name.toLowerCase().includes(q))&&favC.every(c=>c==='laptop'?v.laptop:v.cond.includes(c)));
+  $('#favCount').textContent=r.length+' '+pl(r.length,'простір','простори','просторів');
+  $('#favList').innerHTML=r.length?r.map(v=>card(v,false)).join(''):(liked.size?`<div class="empty"><b>Нічого не знайшли</b>Спробуйте інший запит або приберіть фільтри.</div>`:`<div class="empty"><b>Тут поки порожньо</b>Тисни ♡ на картці закладу, щоб зберегти його сюди.<br><button class="btn" type="button" data-tabto="home">Шукати заклади</button></div>`);
+}
+onShow.fav=()=>{lastTab='fav';renderFav()};
+$('#favTabs').addEventListener('click',e=>{const b=e.target.closest('[data-ft]');if(b){favType=b.dataset.ft;renderFav()}});
+$('#favChips').addEventListener('click',e=>{const b=e.target.closest('[data-fc]');if(!b)return;const k=b.dataset.fc;favC=k==='all'?[]:favC.includes(k)?favC.filter(x=>x!==k):[...favC,k];renderFav()});
+$('#favQ').addEventListener('input',renderFav);
+
+/* ---------- filter sheet ---------- */
+const sheet=$('#sheet'),scrim=$('#scrim');
+function renderSheet(){
+  $('#fGroups').innerHTML=G.map(g=>{
+    const allBtn=g.all?`<button type="button" class="chip" data-g="${g.k}" data-o="__all" aria-pressed="${!D[g.k].length}">Усі</button>`:'';
+    const extra=g.k==='type'?`<h5 style="margin-bottom:4px">Місцерозташування</h5>`:'';
+    return (g.k==='type'?`<h5>Місцерозташування</h5><p style="margin:-4px 0 10px;color:var(--faint);font-size:15px">Вкажіть місто, село, район, вулицю</p><label class="search" style="flex:none"><span>${I.search}</span><input id="fLoc" type="text" placeholder="Пошук" autocomplete="off"></label>`:'')+
+    `<h5>${g.t}</h5><div class="chips">${allBtn}${g.opts.map(o=>`<button type="button" class="chip" data-g="${g.k}" data-o="${o[0]}" aria-pressed="${D[g.k].includes(o[0])}">${o[1]}${g.star?`<span class="st">${I.star}</span>`:''}</button>`).join('')}</div>`}).join('');
+  const act=[];['type','cond','food','rating','extra'].forEach(k=>D[k].forEach(v=>act.push(`<button type="button" data-rm="${k}|${v}" aria-label="Прибрати фільтр ${label(k,v)}">${label(k,v)}${I.xs}</button>`)));
+  $('#activeChips').innerHTML=act.join('');$('#activeChips').hidden=!act.length;
+  const n=list(D,query).length;
+  $('#noMatch').hidden=n>0;
+  const ap=$('#fApply');ap.disabled=!n;ap.textContent=n?`Показати ${n} ${plural(n)}`:'Немає збігів';
+}
+$('#fGroups').addEventListener('click',e=>{const b=e.target.closest('[data-g]');if(!b)return;const g=G.find(x=>x.k===b.dataset.g),o=b.dataset.o;
+  if(o==='__all')D[g.k]=[];else if(g.single)D[g.k]=D[g.k].includes(o)&&g.k!=='sort'?[]:[o];else D[g.k]=D[g.k].includes(o)?D[g.k].filter(x=>x!==o):[...D[g.k],o];
+  const st=$('#sheetSc').scrollTop;renderSheet();$('#sheetSc').scrollTop=st});
+$('#activeChips').addEventListener('click',e=>{const b=e.target.closest('[data-rm]');if(!b)return;const [k,v]=b.dataset.rm.split('|');D[k]=D[k].filter(x=>x!==v);renderSheet()});
+function openSheet(){D=JSON.parse(JSON.stringify(F));renderSheet();scrim.hidden=false;sheet.hidden=false;$('#sheetSc').scrollTop=0;requestAnimationFrame(()=>requestAnimationFrame(()=>{scrim.classList.add('show');sheet.classList.add('show')}));$$('[data-jump]').forEach(b=>b.setAttribute('aria-current',b.dataset.jump==='filter'));setTimeout(()=>$('#sheetX').focus(),300)}
+function closeSheet(instant){if(sheet.hidden)return;scrim.classList.remove('show');sheet.classList.remove('show');const done=()=>{scrim.hidden=true;sheet.hidden=true};instant?done():setTimeout(done,320);$$('[data-jump]').forEach(b=>b.setAttribute('aria-current',b.dataset.jump===cur))}
+$('#sheetX').onclick=()=>closeSheet();scrim.onclick=()=>closeSheet();
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!sheet.hidden)closeSheet()});
+$('#fReset').onclick=()=>{D=blank();renderSheet()};
+$('#fApply').onclick=()=>{F=JSON.parse(JSON.stringify(D));closeSheet();if(cur==='map')renderMap();else if(cur!=='results')go('results');else renderResults()};
+
+
+/* ---------- app state ---------- */
+const U={name:'Дана Коваль',email:'dana@spacehub.com',phone:'98 345 67 89',avatar:null};
+const S={lang:'Українська',city:'Львів',theme:'Світла',radius:'2 км',push:true,remind:true,nearby:true,replies:true,email:false,showName:true,history:true,twofa:false,bio:true};
+const P={geo:true,notif:true,camera:false,photos:false,cal:false};
+let SEEN=[3,4,5];
+const today=new Date();today.setHours(0,0,0,0);
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const MONG=['січ','лют','бер','квіт','трав','черв','лип','серп','вер','жовт','лист','груд'];
+const MONF=['січень','лютий','березень','квітень','травень','червень','липень','серпень','вересень','жовтень','листопад','грудень'];
+const DOW=['нд','пн','вт','ср','чт','пт','сб'];
+const fmtDay=d=>`${DOW[d.getDay()]}, ${d.getDate()} ${MONG[d.getMonth()]}`;
+const hh=h=>String(h).padStart(2,'0')+':00';
+const money=n=>n?n.toLocaleString('uk-UA')+' грн':'Безкоштовно';
+let BK=[{id:'SH-4821',v:8,date:addDays(today,1),start:10,dur:3,kind:'desk',ppl:1,pay:'place',status:'up'},
+        {id:'SH-4610',v:1,date:addDays(today,-3),start:12,dur:2,kind:'desk',ppl:1,pay:'place',status:'past'}];
+const kindOf=(v,k)=>v.kinds.find(x=>x[0]===k)||v.kinds[0];
+const bkTotal=b=>{const v=V.find(x=>x.id===b.v),k=kindOf(v,b.kind);return k[6]?k[3]*b.dur:k[3]*b.dur*b.ppl};
+let NT=[{id:1,ic:'cal',t:'Нагадування про бронювання',x:'Завтра о 10:00 на вас чекають у Pixel Hub. Не забудьте зарядку для ноутбука.',when:'10 хв тому',read:false,go:'bookings'},
+ {id:2,ic:'pin',t:'Оновлення закладу',x:'WorkSpace оновив інформацію: тепер працює з 09:00 до 20:00, а переговорну можна забронювати в застосунку.',when:'2 год тому',read:false,v:3},
+ {id:3,ic:'msg',t:'Відповідь на ваш відгук',x:'Free Coworking: «Дякуємо, Дано! Чекаємо на вас знову».',when:'вчора',read:true,v:1},
+ {id:4,ic:'heart',t:'Знижка в обраному',x:'Link Coworking: −20% на денний абонемент до неділі.',when:'2 дні тому',read:true,v:2}];
+const unread=()=>NT.filter(n=>!n.read).length;
+function paintDots(){const u=unread()&&P.notif;$$('[data-ndot]').forEach(d=>d.hidden=!u);const hb=$('#hBadge');if(hb){hb.hidden=!u;hb.textContent=unread()}}
+const avatarEl=cls=>U.avatar?`<img class="${cls}" src="${U.avatar}" alt="Фото профілю">`:`<span class="${cls}" aria-hidden="true">${(U.name.trim()[0]||'?').toUpperCase()}</span>`;
+
+/* ---------- generic sheet (confirm / choice) ---------- */
+const gs=$('#gSheet'),sc3=$('#scrim3');let gOk=null;
+function openG({title,body='',ok='Так',cancel='Скасувати',danger=false,onOk}){
+  $('#gTitle').textContent=title;$('#gBody').innerHTML=body;const b=$('#gOk');b.textContent=ok;b.classList.toggle('red',danger);$('#gCancel').textContent=cancel;gOk=onOk;
+  sc3.hidden=false;gs.hidden=false;requestAnimationFrame(()=>requestAnimationFrame(()=>{sc3.classList.add('show');gs.classList.add('show')}));setTimeout(()=>b.focus(),300)}
+function closeG(instant){if(gs.hidden)return;sc3.classList.remove('show');gs.classList.remove('show');const done=()=>{sc3.hidden=true;gs.hidden=true};instant?done():setTimeout(done,320)}
+$('#gX').onclick=$('#gCancel').onclick=sc3.onclick=()=>closeG();
+$('#gOk').onclick=()=>{const f=gOk;closeG();f&&f()};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!gs.hidden)closeG()});
+function choice(title,opts,curv,cb){openG({title,ok:'Застосувати',body:`<div role="radiogroup" aria-label="${title}" style="margin-top:8px">${opts.map(o=>`<label class="radio"><input type="radio" name="gch" value="${o}" ${o===curv?'checked':''}><i></i>${o}</label>`).join('')}</div>`,onOk:()=>{const c=document.querySelector('input[name=gch]:checked');c&&cb(c.value)}})}
+
+/* ---------- profile ---------- */
+onShow.profile=()=>{lastTab='profile';
+  $('#pAv').innerHTML=avatarEl('pav');$('#pName').textContent=U.name;$('#pEmail').textContent=U.email;
+  const up=BK.filter(b=>b.status==='up').sort((a,b)=>a.date-b.date);
+  $('#stB').textContent=BK.filter(b=>b.status!=='cancel').length;$('#stBl').textContent=pl(BK.filter(b=>b.status!=='cancel').length,'бронювання','бронювання','бронювань');
+  const mr=myRevs().length;$('#stR').textContent=mr;$('#stRl').textContent=pl(mr,'відгук','відгуки','відгуків');
+  $('#stF').textContent=liked.size;
+  $('#pNextBk').textContent=up[0]?`Найближче: ${fmtDay(up[0].date)}, ${hh(up[0].start)}`:'Немає майбутніх бронювань';
+  const u=unread();$('#pNBadge').hidden=!u;$('#pNBadge').textContent=u;
+};
+$('#logout').onclick=()=>openG({title:'Вийти з акаунта?',body:'<p>Щоб повернутися, потрібно буде знову ввести пошту й пароль.</p>',ok:'Вийти',danger:true,onOk:()=>{stack=[];lastTab='home';show('welcome','back');toast('Ви вийшли з акаунта')}});
+
+/* edit profile */
+let epPhoto=null;
+onShow.editProfile=()=>{epPhoto=U.avatar;$('#epAv').innerHTML=avatarEl('pav');$('#epName').value=U.name;$('#epEmail').value=U.email;$('#epPhone').value=U.phone;['epName','epEmail','epPhone'].forEach(i=>err(i,''))};
+$('#epPhoto').addEventListener('click',e=>{if(!P.photos){e.preventDefault();askPerm('photos','Дозволити доступ до фото?','Щоб змінити фото профілю, SpaceHub потрібен доступ до галереї.',()=>$('#epPhoto').click())}});
+$('#epPhoto').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{epPhoto=r.result;$('#epAv').innerHTML=`<img class="pav" src="${epPhoto}" alt="Нове фото профілю">`};r.readAsDataURL(f);e.target.value=''});
+fmtPhone($('#epPhone'));
+$('#epForm').addEventListener('submit',e=>{e.preventDefault();let ok=true;
+  ok=err('epName',$('#epName').value.trim().length>=2?'':'Вкажіть ім’я')&&ok;
+  ok=err('epEmail',okEmail($('#epEmail').value)?'':'Введіть пошту у форматі name@mail.com')&&ok;
+  const d=digits($('#epPhone').value);ok=err('epPhone',!d||d.length===9?'':'Номер має містити 9 цифр після +380')&&ok;
+  if(!ok)return;U.name=$('#epName').value.trim();U.email=$('#epEmail').value.trim();U.phone=$('#epPhone').value;U.avatar=epPhoto;toast('Зміни збережено');back()});
+['epName','epEmail','epPhone'].forEach(id=>$('#'+id).addEventListener('input',()=>err(id,'')));
+
+/* ---------- notifications ---------- */
+let nf='all';
+function renderN(){
+  $$('#nSeg [data-nf]').forEach(b=>b.setAttribute('aria-selected',b.dataset.nf===nf));
+  const l=NT.filter(n=>nf==='all'||!n.read);$('#nAll').hidden=!unread();
+  $('#nList').innerHTML=!P.notif?`<div class="geo-warn" style="margin:0 0 12px"><span>${I.bell}</span>Сповіщення вимкнено в дозволах.<button class="link" type="button" data-go="permissions">Увімкнути</button></div>`:'';
+  $('#nList').innerHTML+=l.length?l.map(n=>`<button type="button" class="nitem${n.read?'':' unread'}" data-n="${n.id}"><span class="ri">${I[n.ic]}</span><div><b>${n.t}</b><p>${n.x}</p><small>${n.when}</small></div>${n.read?'':'<i class="ud" aria-label="Непрочитане"></i>'}</button>`).join(''):`<div class="empty"><b>${nf==='all'?'Сповіщень поки немає':'Усе прочитано'}</b>Тут з'являтимуться нагадування про бронювання та відповіді на відгуки.</div>`;
+}
+onShow.notifications=renderN;
+$('#nSeg').addEventListener('click',e=>{const b=e.target.closest('[data-nf]');if(b){nf=b.dataset.nf;renderN()}});
+$('#nAll').onclick=()=>{NT.forEach(n=>n.read=true);renderN();paintDots();toast('Усі сповіщення прочитано')};
+$('#nList').addEventListener('click',e=>{const b=e.target.closest('[data-n]');if(!b)return;const n=NT.find(x=>x.id===+b.dataset.n);n.read=true;paintDots();if(n.v)openVenue(n.v);else if(n.go)go(n.go);else renderN()});
+
+/* ---------- settings & permissions ---------- */
+const CH={lang:['Мова',['Українська','English']],city:['Місто',['Львів','Київ','Івано-Франківськ','Тернопіль']],theme:['Тема',['Світла','Темна','Як у системі']],radius:['Радіус пошуку «поруч»',['1 км','2 км','5 км','10 км']]};
+function paintSettings(){
+  $$('[data-val]').forEach(e=>e.textContent=S[e.dataset.val]);
+  $$('input[data-set]').forEach(i=>{i.checked=!!S[i.dataset.set];const dep=i.dataset.dep;const off=dep&&!S[dep];i.disabled=!!off;i.closest('.row').style.opacity=off?.45:1});
+  $$('input[data-perm]').forEach(i=>i.checked=!!P[i.dataset.perm]);
+  $('#tfPhone').textContent=U.phone;
+}
+onShow.settings=onShow.permissions=paintSettings;
+document.addEventListener('click',e=>{const b=e.target.closest('[data-choice]');if(!b)return;const k=b.dataset.choice;choice(CH[k][0],CH[k][1],S[k],val=>{S[k]=val;paintSettings();
+  if(k==='lang'&&val!=='Українська')toast('Англійська версія з’явиться в наступному оновленні');
+  else if(k==='theme'&&val!=='Світла')toast('Темна тема — у наступному оновленні');
+  else toast(CH[k][0]+': '+val)})});
+document.addEventListener('change',e=>{const i=e.target;
+  if(i.dataset.set){S[i.dataset.set]=i.checked;paintSettings();const m={twofa:i.checked?'Двофакторний вхід увімкнено':'Двофакторний вхід вимкнено',bio:i.checked?'Вхід за біометрією увімкнено':'Вхід за біометрією вимкнено',history:i.checked?'Історію переглядів увімкнено':'Історію вимкнено, блок «Переглянуті» сховано'};m[i.dataset.set]&&toast(m[i.dataset.set])}
+  if(i.dataset.perm){P[i.dataset.perm]=i.checked;paintDots();const names={geo:'Геолокація',notif:'Сповіщення',camera:'Камера',photos:'Фото й медіа',cal:'Календар'};toast(names[i.dataset.perm]+(i.checked?': дозволено':': заборонено'))}});
+$('#clearHist').onclick=()=>openG({title:'Очистити історію?',body:'<p>Блок «Переглянуті заклади» на головній стане порожнім.</p>',ok:'Очистити',danger:true,onOk:()=>{SEEN=[];toast('Історію переглядів очищено')}});
+function askPerm(key,title,text,then){openG({title,body:`<p>${text}</p>`,ok:'Дозволити',cancel:'Не зараз',onOk:()=>{P[key]=true;toast('Доступ дозволено');then&&then()}})}
+
+/* ---------- security ---------- */
+let SESS=[['iPhone 15 · SpaceHub','Львів · зараз',true],['MacBook Air · Chrome','Львів · 2 дні тому',false],['iPad · SpaceHub','Київ · 3 тижні тому',false]];
+function renderSess(){$('#sessions').innerHTML=SESS.map((s,i)=>`<div class="row"><span class="ri"><span>${I.phone}</span></span><span class="rt"><b>${s[0]}</b><small>${s[1]}</small></span>${s[2]?'<span class="pill up">Цей пристрій</span>':`<button class="link danger" type="button" data-sess="${i}">Завершити</button>`}</div>`).join('')+(SESS.length>1?`<button class="row" type="button" id="endAll"><span class="ri red"><span>${I.logout}</span></span><span class="rt"><b class="danger">Завершити всі інші сесії</b></span></button>`:'')}
+onShow.security=()=>{paintSettings();renderSess()};
+$('#sessions').addEventListener('click',e=>{const b=e.target.closest('[data-sess]');if(b){const s=SESS[+b.dataset.sess];SESS.splice(+b.dataset.sess,1);renderSess();toast('Сесію «'+s[0]+'» завершено');return}
+  if(e.target.closest('#endAll'))openG({title:'Завершити всі інші сесії?',body:'<p>На інших пристроях потрібно буде увійти знову.</p>',ok:'Завершити',danger:true,onOk:()=>{SESS=SESS.filter(s=>s[2]);renderSess();toast('Інші сесії завершено')}})});
+$('#delAcc').onclick=()=>openG({title:'Видалити акаунт?',body:'<p>Бронювання, відгуки й обране буде видалено назавжди. Цю дію не можна скасувати.</p>',ok:'Видалити',danger:true,onOk:()=>{stack=[];setOb(0);show('onboarding','back');toast('Акаунт видалено')}});
+/* password */
+function pwScore(v){let s=0;if(v.length>=8)s++;if(/\d/.test(v))s++;if(/[A-ZА-ЯҐЄІЇ]/.test(v))s++;if(/[^\wА-Яа-яҐґЄєІіЇї]/.test(v)||v.length>=12)s++;return s}
+onShow.password=()=>{['pwOld','pwNew','pwRep'].forEach(i=>{$('#'+i).value='';err(i,'')});$('#pwMeter').style.width='0'};
+$('#pwNew').addEventListener('input',()=>{const s=pwScore($('#pwNew').value);const c=['#E06363','#E06363','#F2B705','#1A8F4C','#1A8F4C'][s];$('#pwMeter').style.width=(s*25)+'%';$('#pwMeter').style.background=c;$('#pwHint').textContent=['Щонайменше 8 символів, цифра й велика літера','Слабкий пароль','Середній пароль','Надійний пароль','Дуже надійний пароль'][s]});
+$('#pwForm').addEventListener('submit',e=>{e.preventDefault();let ok=true;
+  ok=err('pwOld',$('#pwOld').value.length>=6?'':'Введіть поточний пароль')&&ok;
+  ok=err('pwNew',pwScore($('#pwNew').value)>=3?'':'Пароль має містити 8+ символів, цифру й велику літеру')&&ok;
+  ok=err('pwRep',$('#pwRep').value===$('#pwNew').value&&$('#pwRep').value?'':'Паролі не збігаються')&&ok;
+  if(!ok)return;$('#pwChanged').textContent='Змінено щойно';toast('Пароль змінено');back()});
+['pwOld','pwNew','pwRep'].forEach(id=>$('#'+id).addEventListener('input',()=>err(id,'')));
+/* help */
+$('#supForm').addEventListener('submit',e=>{e.preventDefault();const t=$('#supText').value.trim();if(t.length<10){$('#supTextErr').textContent='Опишіть питання хоча б кількома словами';return}$('#supTextErr').textContent='';$('#supText').value='';toast('Дякуємо! Відповімо на '+U.email+' протягом дня')});
+
+/* ---------- my bookings ---------- */
+let bf='up';
+function renderBk(){
+  $$('#bkSeg [data-bf]').forEach(b=>b.setAttribute('aria-selected',b.dataset.bf===bf));
+  const l=BK.filter(b=>b.status===bf).sort((a,b)=>bf==='up'?a.date-b.date:b.date-a.date);
+  const lbl={up:'Підтверджено',past:'Завершено',cancel:'Скасовано'};
+  $('#bkList').innerHTML=l.length?l.map(b=>{const v=V.find(x=>x.id===b.v);return `<div class="bkcard"><div class="top2"><img src="img/${v.img}.jpg" alt="" style="object-position:${v.pos}"><div><b>${v.name}</b><span>${fmtDay(b.date)} · ${hh(b.start)}–${hh(b.start+b.dur)}</span></div><span class="pill ${b.status}">${lbl[b.status]}</span></div>
+    <div class="bkacts">${b.status==='past'?`<button class="btn ghost" type="button" data-bkr="${b.v}">Залишити відгук</button>`:''}<button class="btn${b.status==='up'?'':' ghost'}" type="button" data-bkd="${b.id}">Детальніше</button></div></div>`}).join(''):
+   `<div class="empty"><b>${bf==='up'?'Немає майбутніх бронювань':bf==='past'?'Тут з’являться минулі візити':'Скасованих бронювань немає'}</b>${bf==='up'?'Знайдіть зручне місце і забронюйте його за хвилину.<br><button class="btn" type="button" data-home>Знайти заклад</button>':''}</div>`;
+}
+onShow.bookings=renderBk;
+$('#bkSeg').addEventListener('click',e=>{const b=e.target.closest('[data-bf]');if(b){bf=b.dataset.bf;renderBk()}});
+$('#bkList').addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;
+  if(t.dataset.bkd){curBk=t.dataset.bkd;go('bkDetail')}
+  else if(t.dataset.bkr)openReview(+t.dataset.bkr)});
+
+/* ---------- booking details ---------- */
+let curBk=null;
+function drawFakeQR(el,text){const n=29,c=document.createElement('canvas'),sz=n*7;c.width=c.height=sz;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,sz,sz);g.fillStyle='#121316';
+  let h=0;for(const ch of text)h=(h*31+ch.charCodeAt(0))>>>0;const rnd=()=>{h^=h<<13;h>>>=0;h^=h>>17;h^=h<<5;h>>>=0;return h/4294967296};
+  const finder=(x,y)=>{g.fillRect(x*7,y*7,49,49);g.fillStyle='#fff';g.fillRect(x*7+7,y*7+7,35,35);g.fillStyle='#121316';g.fillRect(x*7+14,y*7+14,21,21)};
+  for(let y=0;y<n;y++)for(let x=0;x<n;x++){const inF=(x<8&&y<8)||(x>n-9&&y<8)||(x<8&&y>n-9);if(!inF&&rnd()>.52)g.fillRect(x*7,y*7,7,7)}
+  finder(0,0);finder(n-7,0);finder(0,n-7);c.style.width='100%';c.style.height='auto';el.appendChild(c)}
+function renderQR(el,text){el.innerHTML='';try{if(window.QRCode){new QRCode(el,{text,width:200,height:200,colorDark:'#121316',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});return}}catch(e){}drawFakeQR(el,text)}
+onShow.bkDetail=()=>{const b=BK.find(x=>x.id===curBk)||BK[0];curBk=b.id;const v=V.find(x=>x.id===b.v),k=kindOf(v,b.kind);
+  const lbl={up:'Підтверджено',past:'Завершено',cancel:'Скасовано'};
+  $('#bdStatus').className='pill '+b.status;$('#bdStatus').textContent=lbl[b.status];
+  $('#bdQrWrap').hidden=b.status!=='up';if(b.status==='up')renderQR($('#bdQr'),'SPACEHUB:'+b.id);
+  $('#bdNum').textContent=b.id;
+  $('#bdVenue').innerHTML=`<img src="img/${v.img}.jpg" alt="" style="object-position:${v.pos}"><div><b>${v.name}</b><span>${v.type} · ${v.hours}</span></div>`;
+  $('#bdInfo').innerHTML=[['Дата',fmtDay(b.date)],['Час',`${hh(b.start)}–${hh(b.start+b.dur)}`],['Що',`${k[1]} · ${b.ppl} ${pl(b.ppl,'особа','особи','осіб')}`],['Оплата',k[3]?{place:'На місці',gpay:'Google Pay',apay:'Apple Pay'}[b.pay]:'—'],['Разом',money(bkTotal(b))]].map(([a,c])=>`<div><span>${a}</span><b>${c}</b></div>`).join('');
+  const addr='Львів, '+v.addr;$('#bdAddr').textContent=addr;
+  const url='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(addr+', Україна');
+  $('#bdMap').href=url;$('#bdMapLink').href=url;
+  $('#bdMapPin').style.left=v.x+'%';$('#bdMapPin').style.top=v.y+'%';
+  $('#bdCancel').hidden=b.status!=='up';$('#bdCal').hidden=b.status!=='up';$('#bdReview').hidden=b.status!=='past';
+  $('#bdScroll').scrollTop=0};
+$('#bdVenueBtn').onclick=()=>{const b=BK.find(x=>x.id===curBk);openVenue(b.v)};
+$('#bdReview').onclick=()=>{const b=BK.find(x=>x.id===curBk);openReview(b.v)};
+$('#bdCal').onclick=()=>{if(!P.cal)askPerm('cal','Дозволити доступ до календаря?','SpaceHub додасть бронювання в календар і нагадає про нього.',()=>toast('Додано в календар'));else toast('Додано в календар')};
+$('#bdCancel').onclick=()=>{const b=BK.find(x=>x.id===curBk),v=V.find(x=>x.id===b.v);openG({title:'Скасувати бронювання?',body:`<p>${v.name}, ${fmtDay(b.date)} о ${hh(b.start)}. Скасування безкоштовне.</p>`,ok:'Скасувати бронювання',cancel:'Залишити',danger:true,onOk:()=>{b.status='cancel';onShow.bkDetail();toast('Бронювання скасовано')}})};
+
+/* ---------- my reviews ---------- */
+const myRevs=()=>V.flatMap(v=>v.reviews.map((r,i)=>({v,r,i})).filter(o=>o.r[5]));
+onShow.myReviews=()=>{const l=myRevs();$('#mrList').innerHTML=l.length?l.map(({v,r,i})=>`<div class="bkcard"><div class="top2"><img src="img/${v.img}.jpg" alt="" style="object-position:${v.pos}"><div><b>${v.name}</b><span class="stars">${starsHtml(r[2])}</span></div><button class="link" type="button" data-mrv="${v.id}">Відкрити</button></div><p style="margin:10px 0 0;font-size:15px;line-height:1.5">${r[3]}</p><small style="color:var(--muted)">${r[1]}</small></div>`).join(''):'<div class="empty"><b>Ви ще не залишали відгуків</b>Після візиту до закладу поділіться враженнями на його сторінці.</div>'};
+$('#mrList').addEventListener('click',e=>{const b=e.target.closest('[data-mrv]');if(b)openVenue(+b.dataset.mrv)});
+
+/* ---------- booking flow ---------- */
+let BKD=null;
+function openBook(id){const v=V.find(x=>x.id===id);const nowH=new Date().getHours();let day=0;
+  while(day<13){let free=false;for(let h=v.open;h<v.close;h++){if(!busy(v,day,h)&&!(day===0&&h<=nowH)){free=true;break}}if(free)break;day++}
+  BKD={v:id,kind:v.kinds[0][0],day,start:null,dur:2,ppl:v.kinds[0][4],pay:'place'};go('book')}
+const busy=(v,day,h)=>((day*7+h*3+v.id*5)%6===0);
+function renderBook(){
+  const v=V.find(x=>x.id===BKD.v),k=kindOf(v,BKD.kind);
+  $('#bVenue').innerHTML=`<img src="img/${v.img}.jpg" alt="" style="object-position:${v.pos}"><div><b>${v.name}</b><span>${v.type} · ${v.addr}</span><span>${I.clock.replace(/16/g,'13')} ${v.hours}</span></div>`;
+  $('#bKinds').innerHTML=v.kinds.map(x=>`<button type="button" class="kind" data-kind="${x[0]}" aria-pressed="${x[0]===BKD.kind}"><span class="ri">${I[x[2]]}</span><b>${x[1]}</b><small>${x[3]?x[3]+' грн/год'+(x[6]?' за кімнату':' за місце'):'Безкоштовно'}</small></button>`).join('');
+  const d0=addDays(today,BKD.day);$('#bMonth').textContent=MONF[d0.getMonth()]+' '+d0.getFullYear();
+  $('#bDays').innerHTML=Array.from({length:14},(_,i)=>{const d=addDays(today,i);return `<button type="button" class="day" data-day="${i}" aria-pressed="${i===BKD.day}" aria-label="${fmtDay(d)}"><small>${i===0?'сьог.':DOW[d.getDay()]}</small><b>${d.getDate()}</b></button>`}).join('');
+  const nowH=new Date().getHours();$('#bHours').textContent='працює '+v.hours;
+  const hs=[];for(let h=v.open;h<v.close;h++)hs.push(h);
+  if(BKD.start!=null&&(busy(v,BKD.day,BKD.start)||(BKD.day===0&&BKD.start<=nowH)))BKD.start=null;
+  $('#bTimes').innerHTML=hs.map(h=>{const dis=busy(v,BKD.day,h)||(BKD.day===0&&h<=nowH);const inr=BKD.start!=null&&h>BKD.start&&h<BKD.start+BKD.dur;return `<button type="button" class="time${inr?' inr':''}" data-h="${h}" aria-pressed="${h===BKD.start}" ${dis?'disabled aria-label="'+hh(h)+', зайнято"':''}>${hh(h)}</button>`}).join('')||'<p class="sub">Сьогодні вже зачинено. Оберіть інший день.</p>';
+  const maxDur=BKD.start!=null?Math.min(8,v.close-BKD.start):8;if(BKD.dur>maxDur)BKD.dur=maxDur;
+  $('#bDur').textContent=BKD.dur;$('#bPpl').textContent=BKD.ppl;$('#bPplL').textContent=k[6]?'Кількість людей':'Кількість місць';
+  $$('[data-step]').forEach(b=>{const key=b.dataset.step,d=+b.dataset.d;const lo=key==='dur'?1:k[4],hi=key==='dur'?maxDur:k[5];b.disabled=(BKD[key]+d<lo)||(BKD[key]+d>hi)});
+  const tot=BKD.start!=null?bkTotal({v:BKD.v,kind:BKD.kind,dur:BKD.dur,ppl:BKD.ppl}):null;
+  $('#bPaySec').hidden=!k[3];
+  $('#bSum').textContent=BKD.start!=null?`${fmtDay(d0)} · ${hh(BKD.start)}–${hh(BKD.start+BKD.dur)}`:'Оберіть час початку';
+  $('#bTotal').textContent=tot==null?'—':money(tot);$('#bConfirm').disabled=BKD.start==null;
+}
+onShow.book=()=>{if(!BKD)openBook(curV||8);renderBook();$('#bkScroll').scrollTop=0;$('#bNote').value=''};
+$('#bKinds').addEventListener('click',e=>{const b=e.target.closest('[data-kind]');if(!b)return;const v=V.find(x=>x.id===BKD.v);BKD.kind=b.dataset.kind;BKD.ppl=kindOf(v,BKD.kind)[4];renderBook()});
+$('#bDays').addEventListener('click',e=>{const b=e.target.closest('[data-day]');if(b){BKD.day=+b.dataset.day;renderBook()}});
+$('#bTimes').addEventListener('click',e=>{const b=e.target.closest('[data-h]');if(b&&!b.disabled){BKD.start=+b.dataset.h;renderBook()}});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-step]');if(!b||b.disabled)return;BKD[b.dataset.step]+=+b.dataset.d;renderBook()});
+$('#bPays').addEventListener('change',e=>{BKD.pay=e.target.value});
+let lastBk=null;
+$('#bConfirm').onclick=()=>{const v=V.find(x=>x.id===BKD.v);const b={id:'SH-'+(4900+BK.length*37),v:BKD.v,date:addDays(today,BKD.day),start:BKD.start,dur:BKD.dur,kind:BKD.kind,ppl:BKD.ppl,pay:BKD.pay,status:'up'};
+  BK.push(b);lastBk=b;NT.unshift({id:Date.now(),ic:'cal',t:'Бронювання підтверджено',x:`${v.name}, ${fmtDay(b.date)} о ${hh(b.start)}. Номер ${b.id}.`,when:'щойно',read:false,go:'bookings'});
+  stack=stack.filter(s=>s!=='book');show('booked','fwd')};
+onShow.booked=()=>{const b=lastBk||BK[0],v=V.find(x=>x.id===b.v),k=kindOf(v,b.kind);$('#okEmail').textContent=U.email;
+  $('#okTicket').innerHTML=[['Заклад',v.name],['Дата',fmtDay(b.date)],['Час',`${hh(b.start)}–${hh(b.start+b.dur)}`],['Що',`${k[1]} · ${b.ppl} ${pl(b.ppl,'особа','особи','осіб')}`],['Оплата',k[3]?{place:'На місці',gpay:'Google Pay',apay:'Apple Pay'}[b.pay]:'—'],['Разом',money(bkTotal(b))],['Номер',b.id]].map(([a,c])=>`<div><span>${a}</span><b>${c}</b></div>`).join('')};
+$('#okCal').onclick=()=>{if(!P.cal){askPerm('cal','Дозволити доступ до календаря?','SpaceHub додасть бронювання в календар і нагадає про нього.',()=>toast('Додано в календар'))}else toast('Додано в календар')};
+$('#okList').onclick=()=>{stack=['profile'];bf='up';show('bookings','fwd')};
+
+/* ---------- write review ---------- */
+const TAGS=['Швидкий Wi-Fi','Тиша','Зручні місця','Смачна кава','Привітний персонал','Багато розеток','Гарний інтер’єр'];
+let RV=null;
+function openReview(id){RV={v:id,rating:0,tags:[],photos:[]};go('review')}
+function renderRV(){const v=V.find(x=>x.id===RV.v);
+  $('#rvVenue').innerHTML=`<img src="img/${v.img}.jpg" alt="" style="object-position:${v.pos}"><div><b>${v.name}</b><span>${v.type} · ${v.addr}</span></div>`;
+  $('#rvStars').innerHTML=[1,2,3,4,5].map(n=>`<button type="button" role="radio" aria-checked="${RV.rating===n}" aria-label="${n} з 5" class="${n<=RV.rating?'on':''}" data-st="${n}">${I.star}</button>`).join('');
+  $('#rvLabel').textContent=RV.rating?RLABEL[RV.rating]:'Торкніться зірки';
+  $('#rvTags').innerHTML=TAGS.map(t=>`<button type="button" class="chip" data-tag="${t}" aria-pressed="${RV.tags.includes(t)}">${t}</button>`).join('');
+  $('#rvPhotos').innerHTML=RV.photos.map((s,i)=>`<div class="ph2"><img src="${s}" alt="Фото ${i+1}"><button type="button" data-rmph="${i}" aria-label="Прибрати фото">${I.xs}</button></div>`).join('')+(RV.photos.length<3?`<button type="button" class="addph" id="addPh" aria-label="Додати фото">${I.plus}</button>`:'');
+}
+onShow.review=()=>{if(!RV)openReview(curV||8);$('#rvText').value='';$('#rvCount').textContent='0 / 500';$('#rvErr').textContent='';renderRV()};
+$('#rvStars').addEventListener('click',e=>{const b=e.target.closest('[data-st]');if(b){RV.rating=+b.dataset.st;$('#rvErr').textContent='';renderRV()}});
+$('#rvTags').addEventListener('click',e=>{const b=e.target.closest('[data-tag]');if(!b)return;const t=b.dataset.tag;RV.tags=RV.tags.includes(t)?RV.tags.filter(x=>x!==t):[...RV.tags,t];renderRV()});
+$('#rvText').addEventListener('input',()=>{$('#rvCount').textContent=$('#rvText').value.length+' / 500';$('#rvErr').textContent=''});
+$('#rvPhotos').addEventListener('click',e=>{const r=e.target.closest('[data-rmph]');if(r){RV.photos.splice(+r.dataset.rmph,1);renderRV();return}
+  if(e.target.closest('#addPh')){if(!P.photos)askPerm('photos','Дозволити доступ до фото?','Щоб додати фото до відгуку, SpaceHub потрібен доступ до галереї.',()=>$('#rvFile').click());else $('#rvFile').click()}});
+$('#rvFile').addEventListener('change',e=>{[...e.target.files].slice(0,3-RV.photos.length).forEach(f=>{const r=new FileReader();r.onload=()=>{RV.photos.push(r.result);renderRV()};r.readAsDataURL(f)});e.target.value=''});
+$('#rvSend').onclick=()=>{const t=$('#rvText').value.trim();
+  if(!RV.rating){$('#rvErr').textContent='Поставте оцінку від 1 до 5 зірок';return}
+  if(t.length<20){$('#rvErr').textContent='Напишіть хоча б 20 символів, щоб відгук був корисним';return}
+  const v=V.find(x=>x.id===RV.v);const d=new Date();
+  const text=(RV.tags.length?RV.tags.join(' · ')+'. ':'')+t;
+  v.reviews.unshift([U.name,`${d.getDate()} ${MONG[d.getMonth()]} ${d.getFullYear()}`,RV.rating,text,0,true,RV.photos.slice()]);
+  v.rating=Math.round(v.reviews.reduce((s,r)=>s+r[2],0)/v.reviews.length*10)/10;
+  RV=null;curV=v.id;rFilter='all';rSort='new';rShown=3;stack=stack.filter(s=>s!=='review');
+  show('venue','back');toast('Дякуємо! Відгук опубліковано');setTimeout(()=>$('#vScroll').scrollTo({top:$('#vRevH').offsetTop-20,behavior:'smooth'}),350)};
+
+/* ---------- scale the device to fit short desktop screens ---------- */
+function fit(){const d=$('#device');if(innerWidth<=720){d.style.transform='';return}const s=Math.min(1,(innerHeight-40)/852);d.style.transform=s<1?`scale(${s})`:'';d.style.margin=s<1?`${-(852*(1-s))/2}px ${-(393*(1-s))/2}px`:''}
+addEventListener('resize',fit);fit();
+
+/* ---------- start ---------- */
+setOb(0);
+const h=(location.hash||'').slice(1);
+const known=SCREENS.map(s=>s[0]);
+paintTabs();paintDots();
+if(h==='filter'){show('results');openSheet()}else if(h==='rsort'){openVenue(8,true);openSort()}else{if(h==='venue')curV=8;show(known.includes(h)?h:'onboarding')}
+addEventListener('hashchange',()=>{const n=location.hash.slice(1);if(known.includes(n)&&n!==cur){n==='filter'?openSheet():n==='rsort'?show('rsort'):show(n,'fwd')}});
+})();
+</script>
+
+</body></html>
