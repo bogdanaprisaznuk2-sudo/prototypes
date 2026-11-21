@@ -566,5 +566,7 @@
     $('#profReason').textContent = '“' + (st.reason || 'To run with my daughter without stopping.') + '”';
   };
   renderAll();
-  go(st.onboarded ? 'home' : 'onboarding');
+  const qs = new URLSearchParams(location.search).get('screen');
+  if (qs && document.getElementById(qs) && qs !== 'onboarding') { st.onboarded = true; renderAll(); go(qs); }
+  else go(st.onboarded ? 'home' : 'onboarding');
 })();
