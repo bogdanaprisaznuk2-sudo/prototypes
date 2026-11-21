@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cover</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden}
+  body{background:radial-gradient(120% 90% at 50% 10%,var(--c1,#eef0ff) 0%,var(--c2,#dfe3f5) 100%)}
+  .stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+  .row{display:flex;align-items:center;gap:64px;transform-origin:center}
+  .phone{position:relative;width:418px;height:872px;border-radius:64px;background:#111214;flex:none;
+    box-shadow:0 50px 100px rgba(17,18,20,.25),0 8px 24px rgba(17,18,20,.18)}
+  .phone.side{transform:translateY(60px) scale(.9)}
+  .screen{position:absolute;inset:14px;border-radius:50px;overflow:hidden;background:#fff}
+  .screen iframe{width:390px;height:844px;border:0;display:block}
+  .bar{position:absolute;top:0;left:0;right:0;height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 34px 0 40px;font:600 16px/1 -apple-system,Inter,sans-serif;color:#111;background:var(--bar,#fff);z-index:1}
+  .withbar iframe{margin-top:50px;height:794px}
+  .island{position:absolute;top:25px;left:50%;transform:translateX(-50%);width:120px;height:34px;border-radius:20px;background:#0b0b0c;z-index:2}
+</style>
+</head>
+<body>
+<div class="stage"><div class="row" id="row"></div></div>
+<script>
+  const p = new URLSearchParams(location.search);
+  const hex = v => "#" + String(v || "").replace(/[^0-9a-f]/gi, "");
+  if (p.get("c1")) document.body.style.setProperty("--c1", hex(p.get("c1")));
+  if (p.get("c2")) document.body.style.setProperty("--c2", hex(p.get("c2")));
+  const bar = p.get("bar") === "1";
+  const srcs = (p.get("s") || "spacehub-app/").split("|").filter(s => new URL(s, location.href).origin === location.origin).slice(0, 3);
+  const row = document.getElementById("row");
+  const svg = '<svg width="68" height="13" viewBox="0 0 68 13"><rect x="0" y="8" width="3" height="5" rx="1" fill="#111"/><rect x="5" y="6" width="3" height="7" rx="1" fill="#111"/><rect x="10" y="3" width="3" height="10" rx="1" fill="#111"/><rect x="15" y="0" width="3" height="13" rx="1" fill="#111"/><path d="M30 3.5a9 9 0 0 1 12 0l-1.4 1.5a7 7 0 0 0-9.2 0zM32.6 6.4a5 5 0 0 1 6.8 0L36 10z" fill="#111"/><rect x="45.5" y="1" width="20" height="11" rx="3" fill="none" stroke="#111" opacity=".5"/><rect x="47.5" y="3" width="16" height="7" rx="1.5" fill="#111"/></svg>';
+  srcs.forEach((s, i) => {
+    const ph = document.createElement("div");
+    ph.className = "phone" + (srcs.length === 3 && i !== 1 ? " side" : "") + (bar ? " withbar" : "");
+    if (p.get("barbg")) ph.style.setProperty("--bar", hex(p.get("barbg")));
+    ph.innerHTML = '<div class="screen">' + (bar ? '<div class="bar"><span>9:41</span>' + svg + '</div>' : '') + '<iframe tabindex="-1"></iframe></div><div class="island"></div>';
+    ph.querySelector("iframe").src = s;
+    row.appendChild(ph);
+  });
+  function fit() { const w = srcs.length * 418 + (srcs.length - 1) * 64; const s = Math.min(innerWidth * 0.86 / w, innerHeight * 0.86 / 872); row.style.transform = "scale(" + s + ")"; }
+  addEventListener("resize", fit); fit();
+</script>
+</body>
+</html>
